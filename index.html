@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Campus NPS & Feedback Dashboard — FACE Prep</title>
+<title>Campus Dashboard — FACE Prep</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -37,13 +37,11 @@
 html { font-size: 14px; }
 body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg2); }
 ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
 
-/* Layout */
-.page { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+.page { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
 
 /* SIDEBAR */
 .sidebar { background: var(--bg2); border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
@@ -61,13 +59,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .filter-select:focus { outline: none; border-color: var(--accent); }
 .filter-select option { background: var(--bg3); }
 
-.legend-wrap { padding: 8px 16px 16px; }
-.legend-title { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text3); padding: 0 8px 10px; font-weight: 500; }
-.legend-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; margin-bottom: 2px; }
-.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.legend-text { font-size: 11px; color: var(--text2); }
-.legend-score { font-size: 10px; color: var(--text3); margin-left: auto; }
-
 .btn-export { margin: auto 16px 20px; display: flex; align-items: center; justify-content: center; gap: 8px; background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 16px; border-radius: var(--r); font-family: var(--font-body); font-size: 12px; font-weight: 500; cursor: pointer; letter-spacing: 0.04em; transition: all 0.2s; }
 .btn-export:hover { background: var(--accent); color: var(--bg); }
 .btn-export svg { width: 14px; height: 14px; }
@@ -82,6 +73,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .response-badge { background: var(--bg3); border: 1px solid var(--border2); border-radius: 20px; padding: 6px 14px; font-size: 11px; color: var(--text2); display: inline-flex; align-items: center; gap: 6px; }
 .response-badge span { color: var(--accent); font-weight: 500; font-size: 13px; }
 
+/* Loading / empty states */
+.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 60px 20px; color: var(--text3); font-size: 13px; }
+.spinner { width: 28px; height: 28px; border: 2px solid var(--bg4); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* KPI GRID */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
 .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 18px 20px; position: relative; overflow: hidden; transition: border-color 0.2s; }
@@ -90,18 +86,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .kpi-card.green::before { background: var(--green); }
 .kpi-card.blue::before { background: var(--accent3); }
 .kpi-card.orange::before { background: var(--orange); }
-.kpi-card.red::before { background: var(--red); }
 .kpi-card.yellow::before { background: var(--yellow); }
 .kpi-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; font-weight: 500; }
 .kpi-value { font-family: var(--font-display); font-size: 34px; color: var(--text); line-height: 1; }
 .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
 .kpi-interp { display: inline-block; margin-top: 8px; font-size: 10px; padding: 3px 10px; border-radius: 20px; font-weight: 500; letter-spacing:0.02em; }
-
-/* CHARTS ROW */
-.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 22px 24px; }
-.card-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-.card-title::before { content: ''; width: 3px; height: 14px; border-radius: 2px; background: var(--accent); display: inline-block; }
 
 /* SAT METRICS */
 .sat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 24px; }
@@ -110,6 +99,12 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .sat-pct { font-family: var(--font-display); font-size: 28px; color: var(--text); line-height: 1; }
 .sat-bar { height: 3px; background: var(--bg4); border-radius: 2px; margin-top: 10px; }
 .sat-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* CHARTS ROW */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 22px 24px; }
+.card-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.card-title::before { content: ''; width: 3px; height: 14px; border-radius: 2px; background: var(--accent); display: inline-block; }
 
 /* RANKING TABLE */
 .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 22px 24px; margin-bottom: 24px; }
@@ -171,7 +166,10 @@ tbody td.right { text-align: right; }
 .c-high { color: #a84200; background: rgba(200,90,20,0.12); }
 .c-critical { color: #9e1f1f; background: rgba(199,51,51,0.12); }
 
-/* animations */
+/* Supabase config panel */
+.config-banner { background: var(--bg3); border: 1px dashed var(--border2); border-radius: var(--r); padding: 12px 16px; margin-bottom: 20px; font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 10px; }
+.config-banner strong { color: var(--accent2); }
+
 @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
 .kpi-card { animation: fadeUp 0.4s ease both; }
 .kpi-card:nth-child(1){animation-delay:0.05s}.kpi-card:nth-child(2){animation-delay:0.1s}.kpi-card:nth-child(3){animation-delay:0.15s}.kpi-card:nth-child(4){animation-delay:0.2s}
@@ -197,7 +195,7 @@ tbody td.right { text-align: right; }
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-tag">Operations Dashboard</div>
-      <div class="brand-name">Campus NPS &amp;<br>Feedback</div>
+      <div class="brand-name">Campus<br>Dashboard</div>
       <div class="brand-sub">FACE Prep · Campus Management</div>
     </div>
 
@@ -217,16 +215,6 @@ tbody td.right { text-align: right; }
       </div>
     </div>
 
-    <div class="legend-wrap">
-      <div class="legend-title">Score Legend</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4ade9a"></div><div class="legend-text">Exceptional</div><div class="legend-score">90–100</div></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#7eb3ff"></div><div class="legend-text">Strong</div><div class="legend-score">80–89</div></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ffd166"></div><div class="legend-text">Stable</div><div class="legend-score">70–79</div></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#f5a623"></div><div class="legend-text">Moderate Risk</div><div class="legend-score">60–69</div></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff8c42"></div><div class="legend-text">High Attention</div><div class="legend-score">50–59</div></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b"></div><div class="legend-text">Critical Risk</div><div class="legend-score">&lt;50</div></div>
-    </div>
-
     <button class="btn-export" onclick="exportCSV()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export CSV
@@ -237,14 +225,19 @@ tbody td.right { text-align: right; }
   <main class="main">
     <div class="main-header">
       <div>
-        <div class="main-title">Campus <em>Intelligence</em><br>Dashboard</div>
+        <div class="main-title">Campus <em>Dashboard</em></div>
         <div class="main-meta">Institutional satisfaction · Partnership health · NPS analytics</div>
       </div>
       <div class="response-badge">Total responses: <span id="totalRespBadge">—</span></div>
     </div>
 
+    <!-- Supabase config notice -->
+    <div class="config-banner" id="configBanner">
+      ⚡ <strong>Awaiting Supabase connection.</strong>&nbsp; Paste your Supabase URL &amp; anon key into the <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> constants at the top of the script to load live data.
+    </div>
+
     <!-- KPI CARDS -->
-    <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-grid">
       <div class="kpi-card green"><div class="kpi-label">NPS Average</div><div class="kpi-value" id="kNps">—</div><div class="kpi-sub">Scale 0–10</div></div>
       <div class="kpi-card blue"><div class="kpi-label">Composite Score</div><div class="kpi-value" id="kComposite">—</div><div id="kInterpBadge"></div></div>
       <div class="kpi-card orange"><div class="kpi-label">Campus Rank</div><div class="kpi-value" id="kRank">—</div><div class="kpi-sub" id="kRankSub">—</div></div>
@@ -252,7 +245,7 @@ tbody td.right { text-align: right; }
     </div>
 
     <!-- SAT METRICS -->
-    <div class="sat-row" id="satRow">
+    <div class="sat-row">
       <div class="sat-card"><div class="sat-name">Faculty</div><div class="sat-pct" id="sFaculty">—</div><div class="sat-bar"><div class="sat-fill" id="bFaculty" style="width:0%;background:#7eb3ff"></div></div></div>
       <div class="sat-card"><div class="sat-name">Content</div><div class="sat-pct" id="sContent">—</div><div class="sat-bar"><div class="sat-fill" id="bContent" style="width:0%;background:#4ade9a"></div></div></div>
       <div class="sat-card"><div class="sat-name">Operations</div><div class="sat-pct" id="sOps">—</div><div class="sat-bar"><div class="sat-fill" id="bOps" style="width:0%;background:#ffd166"></div></div></div>
@@ -264,17 +257,21 @@ tbody td.right { text-align: right; }
     <div class="charts-row">
       <div class="chart-card">
         <div class="card-title">Composite score by campus</div>
-        <div style="position:relative;height:340px;"><canvas id="barChart" role="img" aria-label="Bar chart of composite campus satisfaction scores"></canvas></div>
+        <div style="position:relative;height:340px;" id="barWrap">
+          <div class="loading-state"><div class="spinner"></div>Waiting for data…</div>
+        </div>
       </div>
       <div class="chart-card">
         <div class="card-title">NPS average by campus</div>
-        <div style="position:relative;height:340px;"><canvas id="npsChart" role="img" aria-label="Bar chart of NPS averages by campus"></canvas></div>
+        <div style="position:relative;height:340px;" id="npsWrap">
+          <div class="loading-state"><div class="spinner"></div>Waiting for data…</div>
+        </div>
       </div>
     </div>
 
     <!-- RANKING TABLE -->
     <div class="table-card">
-      <div class="card-title">Campus ranking & details</div>
+      <div class="card-title">Campus ranking &amp; details</div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -292,7 +289,9 @@ tbody td.right { text-align: right; }
               <th>Status</th>
             </tr>
           </thead>
-          <tbody id="rankBody"></tbody>
+          <tbody id="rankBody">
+            <tr><td colspan="11" style="text-align:center;padding:32px;color:var(--text3);font-size:12px;">No data loaded yet.</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -305,11 +304,15 @@ tbody td.right { text-align: right; }
           <button class="qual-tab active" id="tabPos" onclick="switchQual('pos')">What FACE Prep did best</button>
           <button class="qual-tab" id="tabImp" onclick="switchQual('imp')">Improvements expected</button>
         </div>
-        <div class="qual-list" id="qualList"></div>
+        <div class="qual-list" id="qualList">
+          <div class="qual-item"><div class="qual-text" style="color:var(--text3)">No feedback loaded yet.</div></div>
+        </div>
       </div>
       <div class="donuts-card">
         <div class="card-title">Yes/No distribution per metric</div>
-        <div class="donuts-grid" id="donutsGrid"></div>
+        <div class="donuts-grid" id="donutsGrid">
+          <div class="loading-state" style="grid-column:1/-1"><div class="spinner"></div>Waiting for data…</div>
+        </div>
       </div>
     </div>
 
@@ -321,153 +324,159 @@ tbody td.right { text-align: right; }
 </div>
 
 <script>
-const COLLEGES = [
-  "Kamaraj College",
-  "Kamaraj Women's College",
-  "SDNB Vaishnav College for Women",
-  "Patrician College of Arts & Science",
-  "TERF's College of Arts and Science",
-  "Sree Saraswathi Thyagaraja College",
-  "TJS College of Arts and Science",
-  "Bharathidasan College of Arts & Science",
-  "Nagarathinam Angalammal Arts & Science College",
-  "Vinayaga Mission's Research Foundation School of Arts & Science",
-  "Sri Amaraavathi College of Arts & Science",
-  "Takshashila University",
-  "Study World Group of Institution",
-  "Rathinam College of Arts & Science",
-  "Noorul Islam Centre for Higher Education (NICHE)",
-  "AMET University",
-  "Joy University",
-  "Sasurie College of Arts and Science",
-  "Alliance University",
-  "Kristu Jayathi University",
-  "S-VYASA University",
-  "Asian School of Business"
-];
+/* ─────────────────────────────────────────────
+   SUPABASE CONFIG — fill these in
+   ───────────────────────────────────────────── */
+const SUPABASE_URL      = '';   // e.g. 'https://xxxx.supabase.co'
+const SUPABASE_ANON_KEY = '';   // your anon/public key
 
-const MONTHS = ["January 2026","February 2026","March 2026","April 2026","May 2026"];
+/* ─────────────────────────────────────────────
+   Expected Supabase table: "campus_feedback"
+   Columns (adjust field names below to match yours):
+     college      TEXT
+     month        TEXT          e.g. "January 2026"
+     nps          INTEGER       0-10
+     faculty      TEXT          "Yes" | "No"
+     content      TEXT          "Yes" | "No"
+     ops          TEXT          "Yes" | "No"
+     skill        TEXT          "Yes" | "No"
+     placement    TEXT          "Yes" | "No"
+     positive     TEXT
+     improvement  TEXT
+   ───────────────────────────────────────────── */
 
-function randBetween(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-function seededRand(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return function(){s=s*16807%2147483647;return(s-1)/2147483646;};}
-
-function generateData(){
-  const data=[];
-  COLLEGES.forEach((college,ci)=>{
-    MONTHS.forEach((month,mi)=>{
-      const rng=seededRand((ci+1)*100+(mi+1)*13);
-      const npsBase=rng()*6+4;
-      const n=randBetween(2,6);
-      const npsList=Array.from({length:n},()=>Math.min(10,Math.max(0,Math.round(npsBase+rng()*2-1))));
-      const yesProb=rng()*0.5+0.5;
-      const yn=(k)=>Array.from({length:n},()=>rng()<(yesProb-k)?"Yes":"No");
-      data.push({
-        college,month,
-        nps:npsList,
-        faculty:yn(0),
-        content:yn(0.05),
-        ops:yn(0.1),
-        skill:yn(0.05),
-        placement:yn(0.1),
-        positive:[
-          "The structured curriculum delivery and faculty engagement sessions were well received.",
-          "Content quality and mentor availability stood out as key strengths this period.",
-          "FACE Prep's placement preparation workshops significantly boosted student confidence.",
-          "Timely coordination and responsive KAM support were appreciated by the management.",
-          "The skill development modules were highly relevant to current industry standards.",
-          "Batch tracking and regular feedback to students helped improve overall outcomes.",
-          "Excellent support from the FACE Prep operations team throughout the semester.",
-          "Students showed measurable improvement in aptitude and communication skills.",
-        ][ci%8],
-        improvement:[
-          "Would appreciate more frequent progress reports and batch-level analytics.",
-          "Response time for academic operations support queries should be faster.",
-          "More industry expert guest sessions should be integrated into the program.",
-          "Placement mock interviews should increase in frequency closer to recruitment season.",
-          "AI and ML topics should be added to the curriculum for emerging roles.",
-          "Dedicated portal access for faculty to track student progress would be helpful.",
-          "Weekend batches for working students would improve participation rates.",
-          "Content refresh for advanced-level students expected in the next quarter.",
-        ][ci%8]
-      });
-    });
-  });
-  return data;
-}
-
-const RAW_DATA = generateData();
+let RAW_DATA = [];
 let currentQual = 'pos';
 let barChartInst = null, npsChartInst = null;
 const donutInstances = {};
 
-function calcMetrics(rows){
-  if(!rows.length) return null;
-  const allNps=rows.flatMap(r=>r.nps);
-  const npsAvg=allNps.reduce((a,b)=>a+b,0)/allNps.length;
-  const calcYes=key=>{const all=rows.flatMap(r=>r[key]);return(all.filter(x=>x==="Yes").length/all.length)*100;};
-  const faculty=calcYes('faculty'),content=calcYes('content'),ops=calcYes('ops'),skill=calcYes('skill'),placement=calcYes('placement');
-  const normNps=npsAvg*10;
-  const composite=(0.4*normNps)+(0.15*faculty)+(0.15*content)+(0.10*ops)+(0.10*skill)+(0.10*placement);
-  return{npsAvg,faculty,content,ops,skill,placement,normNps,composite,totalResp:rows.reduce((a,r)=>a+r.nps.length,0)};
+/* ── Supabase fetch ─────────────────────────── */
+async function fetchFromSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+
+  document.getElementById('configBanner').style.display = 'none';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/campus_feedback?select=*`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
+    const rows = await res.json();
+
+    RAW_DATA = rows.map(r => ({
+      college:     r.college,
+      month:       r.month,
+      nps:         [Number(r.nps)],          // wrap single value in array for compatibility
+      faculty:     [r.faculty],
+      content:     [r.content],
+      ops:         [r.ops],
+      skill:       [r.skill],
+      placement:   [r.placement],
+      positive:    r.positive  || '',
+      improvement: r.improvement || ''
+    }));
+
+    buildFilters();
+    renderAll(RAW_DATA);
+  } catch (err) {
+    console.error('Supabase fetch failed:', err);
+    document.getElementById('configBanner').innerHTML =
+      `⚠ <strong style="color:var(--red)">Fetch error:</strong> ${err.message}. Check your URL, key, and table name.`;
+  }
 }
 
-function getInterp(s){
-  if(s>=90)return{label:"Exceptional",cls:"c-exceptional",dot:"#4ade9a"};
-  if(s>=80)return{label:"Strong",cls:"c-strong",dot:"#7eb3ff"};
-  if(s>=70)return{label:"Stable",cls:"c-stable",dot:"#ffd166"};
-  if(s>=60)return{label:"Moderate Risk",cls:"c-moderate",dot:"#f5a623"};
-  if(s>=50)return{label:"High Attention",cls:"c-high",dot:"#ff8c42"};
-  return{label:"Critical Risk",cls:"c-critical",dot:"#ff6b6b"};
+/* ── Filter dropdowns ───────────────────────── */
+function buildFilters() {
+  const colleges = [...new Set(RAW_DATA.map(r => r.college))].sort();
+  const months   = [...new Set(RAW_DATA.map(r => r.month))].sort();
+
+  const sc = document.getElementById('filterCollege');
+  const sm = document.getElementById('filterMonth');
+
+  // Clear old dynamic options
+  sc.querySelectorAll('option:not([value="all"])').forEach(o => o.remove());
+  sm.querySelectorAll('option:not([value="all"])').forEach(o => o.remove());
+
+  colleges.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sc.appendChild(o); });
+  months.forEach(m   => { const o = document.createElement('option'); o.value = m; o.textContent = m; sm.appendChild(o); });
 }
 
-function buildFilters(){
-  const sc=document.getElementById('filterCollege');
-  const sm=document.getElementById('filterMonth');
-  COLLEGES.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sc.appendChild(o);});
-  MONTHS.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sm.appendChild(o);});
+function getFiltered() {
+  const c = document.getElementById('filterCollege').value;
+  const m = document.getElementById('filterMonth').value;
+  return RAW_DATA.filter(r => (c === 'all' || r.college === c) && (m === 'all' || r.month === m));
 }
 
-function getFiltered(){
-  const c=document.getElementById('filterCollege').value;
-  const m=document.getElementById('filterMonth').value;
-  return RAW_DATA.filter(r=>(c==='all'||r.college===c)&&(m==='all'||r.month===m));
+function applyFilters() { renderAll(getFiltered()); }
+
+/* ── Metrics calculation ────────────────────── */
+function calcMetrics(rows) {
+  if (!rows.length) return null;
+  const allNps = rows.flatMap(r => r.nps);
+  const npsAvg = allNps.reduce((a, b) => a + b, 0) / allNps.length;
+  const calcYes = key => {
+    const all = rows.flatMap(r => r[key]);
+    return (all.filter(x => x === 'Yes').length / all.length) * 100;
+  };
+  const faculty    = calcYes('faculty');
+  const content    = calcYes('content');
+  const ops        = calcYes('ops');
+  const skill      = calcYes('skill');
+  const placement  = calcYes('placement');
+  const normNps    = npsAvg * 10;
+  const composite  = (0.4 * normNps) + (0.15 * faculty) + (0.15 * content) + (0.10 * ops) + (0.10 * skill) + (0.10 * placement);
+  const totalResp  = rows.reduce((a, r) => a + r.nps.length, 0);
+  return { npsAvg, faculty, content, ops, skill, placement, normNps, composite, totalResp };
 }
 
-function applyFilters(){renderAll(getFiltered());}
+function getInterp(s) {
+  if (s >= 90) return { label: 'Exceptional',    cls: 'c-exceptional', dot: '#4ade9a' };
+  if (s >= 80) return { label: 'Strong',          cls: 'c-strong',      dot: '#7eb3ff' };
+  if (s >= 70) return { label: 'Stable',          cls: 'c-stable',      dot: '#ffd166' };
+  if (s >= 60) return { label: 'Moderate Risk',   cls: 'c-moderate',    dot: '#f5a623' };
+  if (s >= 50) return { label: 'High Attention',  cls: 'c-high',        dot: '#ff8c42' };
+  return              { label: 'Critical Risk',   cls: 'c-critical',    dot: '#ff6b6b' };
+}
 
-function renderAll(filtered){
-  const campusMap={};
-  filtered.forEach(r=>{if(!campusMap[r.college])campusMap[r.college]=[];campusMap[r.college].push(r);});
-  const campusMetrics=Object.entries(campusMap).map(([college,rows])=>({college,...calcMetrics(rows)}));
-  campusMetrics.sort((a,b)=>b.composite-a.composite||b.npsAvg-a.npsAvg||b.totalResp-a.totalResp);
+/* ── Render all ─────────────────────────────── */
+function renderAll(filtered) {
+  const campusMap = {};
+  filtered.forEach(r => { if (!campusMap[r.college]) campusMap[r.college] = []; campusMap[r.college].push(r); });
+  const campusMetrics = Object.entries(campusMap).map(([college, rows]) => ({ college, ...calcMetrics(rows) }));
+  campusMetrics.sort((a, b) => b.composite - a.composite || b.npsAvg - a.npsAvg || b.totalResp - a.totalResp);
 
-  const overall=calcMetrics(filtered);
-  const totalResp=filtered.reduce((a,r)=>a+r.nps.length,0);
-  document.getElementById('totalRespBadge').textContent=totalResp;
+  const overall   = calcMetrics(filtered);
+  const totalResp = filtered.reduce((a, r) => a + r.nps.length, 0);
+  document.getElementById('totalRespBadge').textContent = totalResp || '—';
 
-  // KPI
-  if(overall){
-    document.getElementById('kNps').textContent=overall.npsAvg.toFixed(2);
-    document.getElementById('kComposite').textContent=overall.composite.toFixed(2);
-    const interp=getInterp(overall.composite);
-    document.getElementById('kInterpBadge').innerHTML=`<span class="kpi-interp ${interp.cls}">${interp.label}</span>`;
-    document.getElementById('kCampuses').textContent=campusMetrics.length;
+  if (overall) {
+    document.getElementById('kNps').textContent       = overall.npsAvg.toFixed(2);
+    document.getElementById('kComposite').textContent = overall.composite.toFixed(2);
+    const interp = getInterp(overall.composite);
+    document.getElementById('kInterpBadge').innerHTML = `<span class="kpi-interp ${interp.cls}">${interp.label}</span>`;
+    document.getElementById('kCampuses').textContent  = campusMetrics.length;
 
-    const selCol=document.getElementById('filterCollege').value;
-    if(selCol!=='all'){
-      const idx=campusMetrics.findIndex(c=>c.college===selCol);
-      document.getElementById('kRank').textContent=idx>=0?`#${idx+1}`:'—';
-      document.getElementById('kRankSub').textContent=idx>=0?`of ${campusMetrics.length} campuses`:'not ranked';
+    const selCol = document.getElementById('filterCollege').value;
+    if (selCol !== 'all') {
+      const idx = campusMetrics.findIndex(c => c.college === selCol);
+      document.getElementById('kRank').textContent    = idx >= 0 ? `#${idx + 1}` : '—';
+      document.getElementById('kRankSub').textContent = idx >= 0 ? `of ${campusMetrics.length} campuses` : 'not ranked';
     } else {
-      document.getElementById('kRank').textContent='All';
-      document.getElementById('kRankSub').textContent='campuses selected';
+      document.getElementById('kRank').textContent    = 'All';
+      document.getElementById('kRankSub').textContent = 'campuses selected';
     }
 
-    // SAT bars
-    [['sFaculty','bFaculty',overall.faculty],['sContent','bContent',overall.content],['sOps','bOps',overall.ops],['sSkill','bSkill',overall.skill],['sPlacement','bPlacement',overall.placement]].forEach(([vi,bi,val])=>{
-      document.getElementById(vi).textContent=val.toFixed(1)+'%';
-      setTimeout(()=>{document.getElementById(bi).style.width=val.toFixed(1)+'%';},100);
+    [['sFaculty','bFaculty',overall.faculty],['sContent','bContent',overall.content],['sOps','bOps',overall.ops],['sSkill','bSkill',overall.skill],['sPlacement','bPlacement',overall.placement]].forEach(([vi, bi, val]) => {
+      document.getElementById(vi).textContent = val.toFixed(1) + '%';
+      setTimeout(() => { document.getElementById(bi).style.width = val.toFixed(1) + '%'; }, 100);
     });
+  } else {
+    ['kNps','kComposite','kRank','kCampuses'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('kInterpBadge').innerHTML = '';
   }
 
   renderTable(campusMetrics);
@@ -477,15 +486,20 @@ function renderAll(filtered){
   renderDonuts(overall);
 }
 
-function renderTable(ranked){
-  document.getElementById('rankBody').innerHTML=ranked.map((r,i)=>{
-    const interp=getInterp(r.composite);
-    const rc=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
-    return`<tr>
-      <td><span class="rank-circle ${rc}">${i+1}</span></td>
+/* ── Table ──────────────────────────────────── */
+function renderTable(ranked) {
+  if (!ranked.length) {
+    document.getElementById('rankBody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--text3);font-size:12px;">No data for this selection.</td></tr>';
+    return;
+  }
+  document.getElementById('rankBody').innerHTML = ranked.map((r, i) => {
+    const interp = getInterp(r.composite);
+    const rc = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+    return `<tr>
+      <td><span class="rank-circle ${rc}">${i + 1}</span></td>
       <td><span class="college-name" title="${r.college}">${r.college}</span></td>
       <td class="right"><span class="score-chip ${interp.cls}">${r.composite.toFixed(2)}</span></td>
-      <td class="right"><div class="nps-bar"><span style="color:var(--text)">${r.npsAvg.toFixed(2)}</span><div class="nps-mini"><div class="nps-mini-fill" style="width:${(r.npsAvg/10*100).toFixed(1)}%"></div></div></div></td>
+      <td class="right"><div class="nps-bar"><span style="color:var(--text)">${r.npsAvg.toFixed(2)}</span><div class="nps-mini"><div class="nps-mini-fill" style="width:${(r.npsAvg / 10 * 100).toFixed(1)}%"></div></div></div></td>
       <td class="right">${r.faculty.toFixed(1)}%</td>
       <td class="right">${r.content.toFixed(1)}%</td>
       <td class="right">${r.ops.toFixed(1)}%</td>
@@ -497,82 +511,92 @@ function renderTable(ranked){
   }).join('');
 }
 
-function renderBarChart(ranked){
-  const labels=ranked.map(r=>r.college.length>22?r.college.substring(0,20)+'…':r.college);
-  const scores=ranked.map(r=>parseFloat(r.composite.toFixed(2)));
-  const colors=ranked.map(r=>{
-    const s=r.composite;
-    if(s>=90)return'rgba(74,222,154,0.8)';
-    if(s>=80)return'rgba(126,179,255,0.8)';
-    if(s>=70)return'rgba(255,209,102,0.8)';
-    if(s>=60)return'rgba(245,166,35,0.8)';
-    if(s>=50)return'rgba(255,140,66,0.8)';
-    return'rgba(255,107,107,0.8)';
+/* ── Bar charts ─────────────────────────────── */
+function injectCanvas(wrapId, canvasId, ariaLabel) {
+  const wrap = document.getElementById(wrapId);
+  wrap.innerHTML = `<canvas id="${canvasId}" style="position:absolute;inset:0" role="img" aria-label="${ariaLabel}"></canvas>`;
+}
+
+function renderBarChart(ranked) {
+  if (!ranked.length) { document.getElementById('barWrap').innerHTML = '<div class="loading-state">No data.</div>'; return; }
+  injectCanvas('barWrap', 'barChart', 'Bar chart of composite campus satisfaction scores');
+  const labels = ranked.map(r => r.college.length > 22 ? r.college.substring(0, 20) + '…' : r.college);
+  const scores  = ranked.map(r => parseFloat(r.composite.toFixed(2)));
+  const colors  = ranked.map(r => {
+    const s = r.composite;
+    if (s >= 90) return 'rgba(74,222,154,0.8)';
+    if (s >= 80) return 'rgba(126,179,255,0.8)';
+    if (s >= 70) return 'rgba(255,209,102,0.8)';
+    if (s >= 60) return 'rgba(245,166,35,0.8)';
+    if (s >= 50) return 'rgba(255,140,66,0.8)';
+    return 'rgba(255,107,107,0.8)';
   });
-  if(barChartInst){barChartInst.destroy();}
-  const ctx=document.getElementById('barChart').getContext('2d');
-  barChartInst=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[{label:'Composite Score',data:scores,backgroundColor:colors,borderRadius:4,borderSkipped:false}]},
-    options:{
-      indexAxis:'y',
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`Score: ${v.raw}`}}},
-      scales:{
-        x:{min:0,max:100,grid:{color:'rgba(0,0,0,0.06)'},ticks:{color:'#8c8880',font:{size:10}}},
-        y:{grid:{display:false},ticks:{color:'#5a5652',font:{size:10}}}
+  if (barChartInst) { barChartInst.destroy(); }
+  barChartInst = new Chart(document.getElementById('barChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Composite Score', data: scores, backgroundColor: colors, borderRadius: 4, borderSkipped: false }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: v => `Score: ${v.raw}` } } },
+      scales: {
+        x: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#8c8880', font: { size: 10 } } },
+        y: { grid: { display: false }, ticks: { color: '#5a5652', font: { size: 10 } } }
       }
     }
   });
 }
 
-function renderNpsChart(ranked){
-  const labels=ranked.map(r=>r.college.length>22?r.college.substring(0,20)+'…':r.college);
-  const scores=ranked.map(r=>parseFloat(r.npsAvg.toFixed(2)));
-  if(npsChartInst){npsChartInst.destroy();}
-  const ctx=document.getElementById('npsChart').getContext('2d');
-  npsChartInst=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[{label:'NPS Average',data:scores,backgroundColor:'rgba(126,179,255,0.7)',borderRadius:4,borderSkipped:false}]},
-    options:{
-      indexAxis:'y',
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>`NPS: ${v.raw}`}}},
-      scales:{
-        x:{min:0,max:10,grid:{color:'rgba(0,0,0,0.06)'},ticks:{color:'#8c8880',font:{size:10}}},
-        y:{grid:{display:false},ticks:{color:'#5a5652',font:{size:10}}}
+function renderNpsChart(ranked) {
+  if (!ranked.length) { document.getElementById('npsWrap').innerHTML = '<div class="loading-state">No data.</div>'; return; }
+  injectCanvas('npsWrap', 'npsChart', 'Bar chart of NPS averages by campus');
+  const labels = ranked.map(r => r.college.length > 22 ? r.college.substring(0, 20) + '…' : r.college);
+  const scores  = ranked.map(r => parseFloat(r.npsAvg.toFixed(2)));
+  if (npsChartInst) { npsChartInst.destroy(); }
+  npsChartInst = new Chart(document.getElementById('npsChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'NPS Average', data: scores, backgroundColor: 'rgba(126,179,255,0.7)', borderRadius: 4, borderSkipped: false }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: v => `NPS: ${v.raw}` } } },
+      scales: {
+        x: { min: 0, max: 10, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#8c8880', font: { size: 10 } } },
+        y: { grid: { display: false }, ticks: { color: '#5a5652', font: { size: 10 } } }
       }
     }
   });
 }
 
-function renderQual(filtered){
-  const c=document.getElementById('filterCollege').value;
-  const source=c==='all'?[...new Map(filtered.map(r=>[r.college,r])).values()]:filtered.filter((v,i,a)=>a.findIndex(x=>x.college===v.college)===i);
-  const key=currentQual==='pos'?'positive':'improvement';
-  document.getElementById('qualList').innerHTML=source.map(r=>`
+/* ── Qualitative ────────────────────────────── */
+function renderQual(filtered) {
+  const c = document.getElementById('filterCollege').value;
+  const source = c === 'all'
+    ? [...new Map(filtered.map(r => [r.college, r])).values()]
+    : filtered.filter((v, i, a) => a.findIndex(x => x.college === v.college) === i);
+  const key = currentQual === 'pos' ? 'positive' : 'improvement';
+  document.getElementById('qualList').innerHTML = source.filter(r => r[key]).map(r => `
     <div class="qual-item">
       <div class="qual-college">${r.college}</div>
       <div class="qual-text">${r[key]}</div>
-    </div>`).join('')||'<div class="qual-item"><div class="qual-text" style="color:var(--text3)">No feedback for selection.</div></div>';
+    </div>`).join('') || '<div class="qual-item"><div class="qual-text" style="color:var(--text3)">No feedback for this selection.</div></div>';
 }
 
-function switchQual(mode){
-  currentQual=mode;
-  document.getElementById('tabPos').className='qual-tab'+(mode==='pos'?' active':'');
-  document.getElementById('tabImp').className='qual-tab'+(mode==='imp'?' active':'');
+function switchQual(mode) {
+  currentQual = mode;
+  document.getElementById('tabPos').className = 'qual-tab' + (mode === 'pos' ? ' active' : '');
+  document.getElementById('tabImp').className = 'qual-tab' + (mode === 'imp' ? ' active' : '');
   renderQual(getFiltered());
 }
 
-function renderDonuts(m){
-  if(!m) return;
-  const metrics=[
-    {label:'Faculty',val:m.faculty,color:'#7eb3ff'},
-    {label:'Content',val:m.content,color:'#4ade9a'},
-    {label:'Operations',val:m.ops,color:'#ffd166'},
-    {label:'Skill Dev',val:m.skill,color:'#f5a623'},
+/* ── Donuts ─────────────────────────────────── */
+function renderDonuts(m) {
+  if (!m) { document.getElementById('donutsGrid').innerHTML = '<div class="loading-state" style="grid-column:1/-1"><div class="spinner"></div>Waiting for data…</div>'; return; }
+  const metrics = [
+    { label: 'Faculty',     val: m.faculty,    color: '#7eb3ff' },
+    { label: 'Content',     val: m.content,    color: '#4ade9a' },
+    { label: 'Operations',  val: m.ops,        color: '#ffd166' },
+    { label: 'Skill Dev',   val: m.skill,      color: '#f5a623' },
   ];
-  document.getElementById('donutsGrid').innerHTML=metrics.map((_,i)=>`
+  document.getElementById('donutsGrid').innerHTML = metrics.map((_, i) => `
     <div class="donut-item">
       <div class="donut-canvas-wrap"><canvas id="donut_${i}" width="56" height="56"></canvas></div>
       <div>
@@ -580,36 +604,37 @@ function renderDonuts(m){
         <div class="donut-pct">${metrics[i].val.toFixed(1)}%</div>
       </div>
     </div>`).join('');
-  metrics.forEach((m,i)=>{
-    if(donutInstances[i]) donutInstances[i].destroy();
-    donutInstances[i]=new Chart(document.getElementById(`donut_${i}`).getContext('2d'),{
-      type:'doughnut',
-      data:{datasets:[{data:[m.val,100-m.val],backgroundColor:[m.color,'rgba(0,0,0,0.08)'],borderWidth:0}]},
-      options:{cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:600}}
+  metrics.forEach((mt, i) => {
+    if (donutInstances[i]) donutInstances[i].destroy();
+    donutInstances[i] = new Chart(document.getElementById(`donut_${i}`).getContext('2d'), {
+      type: 'doughnut',
+      data: { datasets: [{ data: [mt.val, 100 - mt.val], backgroundColor: [mt.color, 'rgba(0,0,0,0.08)'], borderWidth: 0 }] },
+      options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 600 } }
     });
   });
 }
 
-function exportCSV(){
-  const filtered=getFiltered();
-  const campusMap={};
-  filtered.forEach(r=>{if(!campusMap[r.college])campusMap[r.college]=[];campusMap[r.college].push(r);});
-  const rows=[['Rank','College','Composite Score','Interpretation','NPS Average','Normalized NPS','Faculty %','Content %','Operations %','Skill Dev %','Placement %','Total Responses']];
-  const metrics=Object.entries(campusMap).map(([c,r])=>({college:c,...calcMetrics(r)}));
-  metrics.sort((a,b)=>b.composite-a.composite||b.npsAvg-a.npsAvg||b.totalResp-a.totalResp);
-  metrics.forEach((m,i)=>{
-    const interp=getInterp(m.composite);
-    rows.push([i+1,m.college,m.composite.toFixed(2),interp.label,m.npsAvg.toFixed(2),m.normNps.toFixed(2),m.faculty.toFixed(2),m.content.toFixed(2),m.ops.toFixed(2),m.skill.toFixed(2),m.placement.toFixed(2),m.totalResp]);
+/* ── Export CSV ─────────────────────────────── */
+function exportCSV() {
+  const filtered = getFiltered();
+  const campusMap = {};
+  filtered.forEach(r => { if (!campusMap[r.college]) campusMap[r.college] = []; campusMap[r.college].push(r); });
+  const rows = [['Rank','College','Composite Score','Interpretation','NPS Average','Normalized NPS','Faculty %','Content %','Operations %','Skill Dev %','Placement %','Total Responses']];
+  const metrics = Object.entries(campusMap).map(([c, r]) => ({ college: c, ...calcMetrics(r) }));
+  metrics.sort((a, b) => b.composite - a.composite || b.npsAvg - a.npsAvg || b.totalResp - a.totalResp);
+  metrics.forEach((m, i) => {
+    const interp = getInterp(m.composite);
+    rows.push([i + 1, m.college, m.composite.toFixed(2), interp.label, m.npsAvg.toFixed(2), m.normNps.toFixed(2), m.faculty.toFixed(2), m.content.toFixed(2), m.ops.toFixed(2), m.skill.toFixed(2), m.placement.toFixed(2), m.totalResp]);
   });
-  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='faceprep_campus_nps.csv';
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'faceprep_campus_nps.csv';
   a.click();
 }
 
-buildFilters();
-renderAll(RAW_DATA);
+/* ── Boot ───────────────────────────────────── */
+fetchFromSupabase();
 </script>
 </body>
 </html>
