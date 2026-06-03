@@ -353,11 +353,10 @@ const donutInstances = {};
 /* ── Supabase fetch ─────────────────────────── */
 async function fetchFromSupabase() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
-
   document.getElementById('configBanner').style.display = 'none';
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/campus_feedback?select=*`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/faceprep_feedback?select=*`, {
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -367,18 +366,27 @@ async function fetchFromSupabase() {
     if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
     const rows = await res.json();
 
-    RAW_DATA = rows.map(r => ({
-      college:     r.college,
-      month:       r.month,
-      nps:         [Number(r.nps)],          // wrap single value in array for compatibility
-      faculty:     [r.faculty],
-      content:     [r.content],
-      ops:         [r.ops],
-      skill:       [r.skill],
-      placement:   [r.placement],
-      positive:    r.positive  || '',
-      improvement: r.improvement || ''
-    }));
+    RAW_DATA = rows.map(r => {
+      // Derive month from submitted_at  e.g. "June 2026"
+      const d = new Date(r.submitted_at);
+      const month = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+      // Normalize yes/no → "Yes"/"No" regardless of case
+      const yn = v => v && v.toLowerCase() === 'yes' ? 'Yes' : 'No';
+
+      return {
+        college:     r.college_university,
+        month:       month,
+        nps:         [Number(r.recommendation_score)],
+        faculty:     [yn(r.satisfied_faculty)],
+        content:     [yn(r.satisfied_content)],
+        ops:         [yn(r.satisfied_academic_ops)],
+        skill:       [yn(r.satisfied_skill_development)],
+        placement:   [yn(r.satisfied_placement_support)],
+        positive:    r.best_this_period    || '',
+        improvement: r.improvement_next_quarter || ''
+      };
+    });
 
     buildFilters();
     renderAll(RAW_DATA);
