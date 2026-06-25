@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -34,18 +35,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
 .sb-item:hover{background:var(--bg);color:var(--text-primary)}
 .sb-item.active{background:var(--green-light);color:var(--green-dark);font-weight:500}
 .sb-item.active i{color:var(--green)}
-.sb-new{font-size:8px;font-weight:700;background:#7c3aed;color:#fff;padding:1px 5px;border-radius:4px;margin-left:auto;letter-spacing:.4px;animation:newpulse 2s ease-in-out infinite}
-.sb-foot{margin-top:auto;padding:14px;border-top:1px solid var(--border);flex-shrink:0}
-.sb-upgrade{background:var(--green-light);border-radius:var(--radius-sm);padding:12px;border:1px solid #bbf7d0}
-.sb-upgrade-label{font-size:11px;font-weight:600;color:var(--green-dark);margin-bottom:2px}
-.sb-upgrade-note{font-size:10px;color:#16a34a99}
-.sb-upgrade-val{font-size:16px;font-weight:700;color:var(--green);margin-top:4px}
+.sb-item.disabled{opacity:.45;pointer-events:none}
 .main{flex:1;margin-left:230px;display:flex;flex-direction:column;min-height:100vh}
 .topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:9}
 .topbar-left{display:flex;align-items:center;gap:16px}
 .topbar-title{font-size:15px;font-weight:600;color:var(--text-primary)}
 .topbar-meta{font-size:11px;color:var(--text-tertiary);margin-top:1px}
-.topbar-right{display:flex;align-items:center;gap:8px}
 .pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap}
 .pill-green{background:var(--green-light);color:var(--green-dark)}
 .pill-blue{background:var(--blue-light);color:#1e40af}
@@ -99,8 +94,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
 .alert-name{font-size:12px;font-weight:500;color:var(--text-primary)}
 .alert-sub{font-size:10px;color:var(--text-tertiary);margin-top:1px}
 .info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:14px;font-size:12px;color:#1e40af;line-height:1.6}
+.info-box.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
 .info-box strong{font-weight:600}
-@keyframes newpulse{0%,100%{opacity:1}50%{opacity:.6}}
+.empty-note{font-size:11px;color:var(--text-tertiary);padding:10px 0}
 </style>
 </head>
 <body>
@@ -128,37 +124,43 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
   <div class="topbar">
     <div class="topbar-left">
       <div>
-        <div class="topbar-title" id="tb-title">Executive Overview</div>
-        <div class="topbar-meta">WMPTL – Sarus Infrastructures Pvt Ltd · 2,76,110 MT Infrastructure Project · FY 2024–26</div>
+        <div class="topbar-title" id="tb-title">Loading…</div>
+        <div class="topbar-meta" id="topbar-meta">Connecting to Supabase…</div>
       </div>
     </div>
   </div>
 
   <div class="content">
 
+    <div class="card" id="db-error" style="display:none;border-color:#fecaca;background:#fef2f2">
+      <div class="card-title" style="color:var(--red);margin-bottom:6px">Couldn't load data from Supabase</div>
+      <div style="font-size:12px;color:#7f1d1d" id="db-error-msg">—</div>
+      <div style="font-size:11px;color:#7f1d1d;margin-top:8px">Check that <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the top of the script are filled in, and that the tables from the schema exist.</div>
+    </div>
+
     <!-- VIEW 1: OVERVIEW -->
     <div class="view active" id="view-overview">
       <div class="page-header">
         <div>
           <div class="page-title">Executive Overview</div>
-          <div class="page-sub">WMPTL – Sarus Infrastructures Pvt Ltd · Infrastructure Project</div>
+          <div class="page-sub" id="ov-page-sub">Loading project…</div>
         </div>
         <div class="page-badges">
-          <span class="pill pill-green"><i class="ti ti-trending-up" style="font-size:11px"></i>+12.69% Profit</span>
-          <span class="pill pill-blue">95.25% Complete</span>
+          <span class="pill pill-green" id="ov-badge-profit"><i class="ti ti-trending-up" style="font-size:11px"></i>—</span>
+          <span class="pill pill-blue" id="ov-badge-complete">—</span>
         </div>
       </div>
       <div class="kpi4">
-        <div class="kpi-card"><div><div class="kpi-label">Net Cash Inflow</div><div class="kpi-val blue">₹80.79 Cr</div><div class="kpi-note">From client billing + retention/PBG</div></div><div class="kpi-icon blue"><i class="ti ti-arrow-down-circle"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Net Cash Outflow</div><div class="kpi-val red">₹70.53 Cr</div><div class="kpi-note">All vendor &amp; staff payments</div></div><div class="kpi-icon red"><i class="ti ti-arrow-up-circle"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Net Profit</div><div class="kpi-val green">₹10.25 Cr</div><div class="kpi-note">+12.69% margin on inflow</div></div><div class="kpi-icon green"><i class="ti ti-coin"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Cash Diverted</div><div class="kpi-val amber">₹7.00 Cr</div><div class="kpi-note">Redirected outside project</div></div><div class="kpi-icon amber"><i class="ti ti-alert-triangle"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Net Cash Inflow</div><div class="kpi-val blue" id="kpi-inflow-val">—</div><div class="kpi-note">From client billing + retention/PBG</div></div><div class="kpi-icon blue"><i class="ti ti-arrow-down-circle"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Net Cash Outflow</div><div class="kpi-val red" id="kpi-outflow-val">—</div><div class="kpi-note">All vendor &amp; staff payments</div></div><div class="kpi-icon red"><i class="ti ti-arrow-up-circle"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Net Profit</div><div class="kpi-val green" id="kpi-profit-val">—</div><div class="kpi-note" id="kpi-profit-note">—</div></div><div class="kpi-icon green"><i class="ti ti-coin"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Cash Diverted</div><div class="kpi-val amber" id="kpi-diverted-val">—</div><div class="kpi-note">Redirected outside project</div></div><div class="kpi-icon amber"><i class="ti ti-alert-triangle"></i></div></div>
       </div>
       <div class="kpi4">
-        <div class="kpi-card"><div><div class="kpi-label">Amount Received</div><div class="kpi-val">₹75.63 Cr</div><div class="kpi-note">99.87% of gross billed</div></div><div class="kpi-icon green"><i class="ti ti-receipt"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Balance Receivable</div><div class="kpi-val">₹0.10 Cr</div><div class="kpi-note">Regular billing pending</div></div><div class="kpi-icon amber"><i class="ti ti-clock"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Retention (5%)</div><div class="kpi-val">₹3.48 Cr</div><div class="kpi-note">Held by client — returnable</div></div><div class="kpi-icon blue"><i class="ti ti-lock"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">PBG (2.5%)</div><div class="kpi-val">₹1.57 Cr</div><div class="kpi-note">Performance bond — returnable</div></div><div class="kpi-icon blue"><i class="ti ti-shield-check"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Amount Received</div><div class="kpi-val" id="kpi-received-val">—</div><div class="kpi-note" id="kpi-received-note">—</div></div><div class="kpi-icon green"><i class="ti ti-receipt"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Balance Receivable</div><div class="kpi-val" id="kpi-balance-val">—</div><div class="kpi-note">Regular billing pending</div></div><div class="kpi-icon amber"><i class="ti ti-clock"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Retention (5%)</div><div class="kpi-val" id="kpi-retention-val">—</div><div class="kpi-note">Held by client — returnable</div></div><div class="kpi-icon blue"><i class="ti ti-lock"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">PBG (2.5%)</div><div class="kpi-val" id="kpi-pbg-val">—</div><div class="kpi-note">Performance bond — returnable</div></div><div class="kpi-icon blue"><i class="ti ti-shield-check"></i></div></div>
       </div>
       <div class="row2">
         <div class="card">
@@ -179,11 +181,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
       <div class="card">
         <div class="card-header">
           <div class="card-title">Pending Vendor Dues</div>
-          <span class="pill pill-red">3 open balances</span>
+          <span class="pill pill-red" id="ov-dues-count">— open balances</span>
         </div>
-        <div class="alert-row"><div><div class="alert-name">Aggregates Suppliers</div><div class="alert-sub">20.33% of total spend · ₹518.54/MT</div></div><span class="pill pill-red">₹0.36 Cr</span></div>
-        <div class="alert-row"><div><div class="alert-name">Aggregates Royalty</div><div class="alert-sub">3.21% of total spend · ₹81.79/MT</div></div><span class="pill pill-red">₹1.12 Cr</span></div>
-        <div class="alert-row"><div><div class="alert-name">Dumpers Hire</div><div class="alert-sub">9.04% of total spend · ₹230.70/MT</div></div><span class="pill pill-red">₹0.21 Cr</span></div>
+        <div id="ov-dues-list"><div class="empty-note">Loading…</div></div>
       </div>
     </div>
 
@@ -193,14 +193,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
         <div><div class="page-title">Cash Flow</div><div class="page-sub">Full breakdown of inflows, outflows, and profit</div></div>
       </div>
       <div class="kpi3">
-        <div class="kpi-card"><div><div class="kpi-label">Gross Receivable</div><div class="kpi-val blue">₹75.73 Cr</div><div class="kpi-note">Net amount billed to client</div></div><div class="kpi-icon blue"><i class="ti ti-file-invoice"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Retention + PBG</div><div class="kpi-val">₹5.05 Cr</div><div class="kpi-note">Security deposits — returnable</div></div><div class="kpi-icon blue"><i class="ti ti-lock"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-val green">₹80.79 Cr</div><div class="kpi-label">Net Inflow</div><div class="kpi-note">Gross + retention/PBG received</div></div><div class="kpi-icon green"><i class="ti ti-trending-up"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Gross Receivable</div><div class="kpi-val blue" id="cf-gross-val">—</div><div class="kpi-note">Net amount billed to client</div></div><div class="kpi-icon blue"><i class="ti ti-file-invoice"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Retention + PBG</div><div class="kpi-val" id="cf-retpbg-val">—</div><div class="kpi-note">Security deposits — returnable</div></div><div class="kpi-icon blue"><i class="ti ti-lock"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-val green" id="cf-netinflow-val">—</div><div class="kpi-label">Net Inflow</div><div class="kpi-note">Gross + retention/PBG received</div></div><div class="kpi-icon green"><i class="ti ti-trending-up"></i></div></div>
       </div>
       <div class="kpi3">
-        <div class="kpi-card"><div><div class="kpi-label">Vendor Payments</div><div class="kpi-val red">₹63.90 Cr</div><div class="kpi-note">79.1% of net inflow</div></div><div class="kpi-icon red"><i class="ti ti-truck"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Staff + Site Expenses</div><div class="kpi-val red">₹6.63 Cr</div><div class="kpi-note">Salaries + purchases + plant</div></div><div class="kpi-icon red"><i class="ti ti-users"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Profit</div><div class="kpi-val green">₹10.25 Cr</div><div class="kpi-note">+12.69% · Diverted ₹7.00 Cr</div></div><div class="kpi-icon green"><i class="ti ti-coin"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Vendor Payments</div><div class="kpi-val red" id="cf-vendor-val">—</div><div class="kpi-note" id="cf-vendor-note">—</div></div><div class="kpi-icon red"><i class="ti ti-truck"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Staff + Site Expenses</div><div class="kpi-val red" id="cf-staffsite-val">—</div><div class="kpi-note">Salaries + purchases + plant</div></div><div class="kpi-icon red"><i class="ti ti-users"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Profit</div><div class="kpi-val green" id="cf-profit-val">—</div><div class="kpi-note" id="cf-profit-note">—</div></div><div class="kpi-icon green"><i class="ti ti-coin"></i></div></div>
       </div>
       <div class="row2">
         <div class="card">
@@ -223,20 +223,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
         <div class="card-header"><div class="card-title">Financial Statement Summary</div></div>
         <table class="vtable">
           <thead><tr><th style="width:55%">Particulars</th><th class="tr">Amount (₹ Cr)</th><th class="tr">% of Inflow</th></tr></thead>
-          <tbody>
-            <tr style="color:var(--blue);font-weight:600"><td><strong>Gross Receivable from Client</strong></td><td class="tr" style="color:var(--blue);font-weight:600">₹75.73 Cr</td><td class="tr tm">93.7%</td></tr>
-            <tr><td style="padding-left:20px;color:var(--text-tertiary)">— Amount Received</td><td class="tr tm">₹75.63 Cr</td><td class="tr tm">93.6%</td></tr>
-            <tr><td style="padding-left:20px;color:var(--text-tertiary)">— Balance Receivable</td><td class="tr tm">₹0.10 Cr</td><td class="tr tm">0.1%</td></tr>
-            <tr><td>Retention &amp; PBG</td><td class="tr tm">₹5.05 Cr</td><td class="tr tm">6.3%</td></tr>
-            <tr style="background:#eff6ff"><td><strong>Net Cash Inflow</strong></td><td class="tr" style="color:var(--blue);font-weight:700">₹80.79 Cr</td><td class="tr tm">100%</td></tr>
-            <tr><td>Vendor Payments</td><td class="tr" style="color:var(--red)">−₹63.90 Cr</td><td class="tr tm">79.1%</td></tr>
-            <tr><td>Staff Salaries</td><td class="tr" style="color:var(--red)">−₹3.40 Cr</td><td class="tr tm">4.2%</td></tr>
-            <tr><td>Site Local Purchases</td><td class="tr" style="color:var(--red)">−₹1.71 Cr</td><td class="tr tm">2.1%</td></tr>
-            <tr><td>Hot Mix Plant (30% cost)</td><td class="tr" style="color:var(--red)">−₹1.43 Cr</td><td class="tr tm">1.8%</td></tr>
-            <tr style="background:#f9fafb"><td><strong>Net Cash Outflow</strong></td><td class="tr" style="color:var(--red);font-weight:700">−₹70.53 Cr</td><td class="tr tm">87.3%</td></tr>
-            <tr style="background:#f0fdf4"><td><strong>Net Profit</strong></td><td class="tr" style="color:var(--green);font-weight:700">₹10.25 Cr</td><td class="tr tm">+12.69%</td></tr>
-            <tr><td>Cash Diverted (Outside)</td><td class="tr" style="color:var(--amber)">₹7.00 Cr</td><td class="tr tm">8.7%</td></tr>
-          </tbody>
+          <tbody id="cf-summary-table"></tbody>
         </table>
       </div>
     </div>
@@ -247,9 +234,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
         <div><div class="page-title">Vendor Ledger</div><div class="page-sub">Outstanding, paid, and balance across all categories</div></div>
       </div>
       <div class="kpi3">
-        <div class="kpi-card"><div><div class="kpi-label">Total Outstanding</div><div class="kpi-val blue">₹63.90 Cr</div><div class="kpi-note">Across 14 billed categories</div></div><div class="kpi-icon blue"><i class="ti ti-building"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Total Paid</div><div class="kpi-val green">₹62.21 Cr</div><div class="kpi-note">97.4% payment efficiency</div></div><div class="kpi-icon green"><i class="ti ti-check-circle"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Balance Payable</div><div class="kpi-val red">₹1.69 Cr</div><div class="kpi-note">3 vendors with open dues</div></div><div class="kpi-icon red"><i class="ti ti-alert-circle"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Total Outstanding</div><div class="kpi-val blue" id="vn-outstanding-val">—</div><div class="kpi-note" id="vn-outstanding-note">—</div></div><div class="kpi-icon blue"><i class="ti ti-building"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Total Paid</div><div class="kpi-val green" id="vn-paid-val">—</div><div class="kpi-note" id="vn-paid-note">—</div></div><div class="kpi-icon green"><i class="ti ti-check-circle"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Balance Payable</div><div class="kpi-val red" id="vn-balance-val">—</div><div class="kpi-note" id="vn-balance-note">—</div></div><div class="kpi-icon red"><i class="ti ti-alert-circle"></i></div></div>
       </div>
       <div class="row2">
         <div class="card">
@@ -270,7 +257,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
       <div class="card" style="padding:0">
         <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
           <div class="card-title">Full Vendor Ledger</div>
-          <span class="pill pill-blue">14 categories</span>
+          <span class="pill pill-blue" id="vn-count-badge">— categories</span>
         </div>
         <div style="overflow-x:auto">
           <table class="vtable">
@@ -287,10 +274,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
         <div><div class="page-title">Staff Salaries</div><div class="page-sub">On-roll, NMR manpower and RA bill payments</div></div>
       </div>
       <div class="kpi4">
-        <div class="kpi-card"><div><div class="kpi-label">Total Salary Paid</div><div class="kpi-val blue">₹7.95 Cr</div><div class="kpi-note">Apr'24 – Apr'26</div></div><div class="kpi-icon blue"><i class="ti ti-wallet"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Staff Salaries</div><div class="kpi-val">₹3.40 Cr</div><div class="kpi-note">On-roll total</div></div><div class="kpi-icon green"><i class="ti ti-user-check"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">NMR Manpower</div><div class="kpi-val">₹3.49 Cr</div><div class="kpi-note">Off-roll/NMR total</div></div><div class="kpi-icon amber"><i class="ti ti-user-plus"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">RA Bills Paid</div><div class="kpi-val">₹1.07 Cr</div><div class="kpi-note">Running account bills</div></div><div class="kpi-icon blue"><i class="ti ti-receipt"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Total Salary Paid</div><div class="kpi-val blue" id="st-total-val">—</div><div class="kpi-note" id="st-total-note">—</div></div><div class="kpi-icon blue"><i class="ti ti-wallet"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Staff Salaries</div><div class="kpi-val" id="st-staff-val">—</div><div class="kpi-note">On-roll total</div></div><div class="kpi-icon green"><i class="ti ti-user-check"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">NMR Manpower</div><div class="kpi-val" id="st-nmr-val">—</div><div class="kpi-note">Off-roll/NMR total</div></div><div class="kpi-icon amber"><i class="ti ti-user-plus"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">RA Bills Paid</div><div class="kpi-val" id="st-ra-val">—</div><div class="kpi-note">Running account bills</div></div><div class="kpi-icon blue"><i class="ti ti-receipt"></i></div></div>
       </div>
       <div class="row2">
         <div class="card">
@@ -325,18 +312,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
       <div class="page-header">
         <div><div class="page-title">Cost per MT Tracker</div><div class="page-sub">Planned vs Quoted vs Actual</div></div>
         <div class="page-badges">
-          <span class="pill pill-amber">+₹292/MT over plan</span>
-          <span class="pill pill-green">−₹89/MT under quote</span>
+          <span class="pill pill-amber" id="cm-badge-planvar">—</span>
+          <span class="pill pill-green" id="cm-badge-quotevar">—</span>
         </div>
       </div>
       <div class="kpi3">
-        <div class="kpi-card"><div><div class="kpi-label">Planned Cost / MT</div><div class="kpi-val blue">₹2,009</div><div class="kpi-note">Internal project plan basis</div></div><div class="kpi-icon blue"><i class="ti ti-clipboard-list"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Quoted Rate / MT</div><div class="kpi-val purple">₹2,390</div><div class="kpi-note">Contract price to client</div></div><div class="kpi-icon purple"><i class="ti ti-file-invoice"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Actual Cost / MT</div><div class="kpi-val amber">₹2,301</div><div class="kpi-note">Weighted avg — above plan, below quote</div></div><div class="kpi-icon amber"><i class="ti ti-calculator"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Planned Cost / MT</div><div class="kpi-val blue" id="cm-planned-val">—</div><div class="kpi-note">Internal project plan basis</div></div><div class="kpi-icon blue"><i class="ti ti-clipboard-list"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Quoted Rate / MT</div><div class="kpi-val purple" id="cm-quoted-val">—</div><div class="kpi-note">Contract price to client</div></div><div class="kpi-icon purple"><i class="ti ti-file-invoice"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Actual Cost / MT</div><div class="kpi-val amber" id="cm-actual-val">—</div><div class="kpi-note">Weighted avg — above plan, below quote</div></div><div class="kpi-icon amber"><i class="ti ti-calculator"></i></div></div>
       </div>
       <div class="kpi2">
-        <div class="kpi-card"><div><div class="kpi-label">Plan vs Actual Variance</div><div class="kpi-val red">+₹292/MT over plan</div><div class="kpi-note">14.5% above planned cost</div></div><div class="kpi-icon red"><i class="ti ti-alert-triangle"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Quote vs Actual Variance</div><div class="kpi-val green">−₹89/MT under quote</div><div class="kpi-note">3.7% below quoted rate — profitable margin</div></div><div class="kpi-icon green"><i class="ti ti-circle-check"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Plan vs Actual Variance</div><div class="kpi-val red" id="cm-planvar-val">—</div><div class="kpi-note" id="cm-planvar-note">—</div></div><div class="kpi-icon red"><i class="ti ti-alert-triangle"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Quote vs Actual Variance</div><div class="kpi-val green" id="cm-quotevar-val">—</div><div class="kpi-note" id="cm-quotevar-note">—</div></div><div class="kpi-icon green"><i class="ti ti-circle-check"></i></div></div>
       </div>
       <div class="card">
         <div class="card-header">
@@ -379,16 +366,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
     <!-- VIEW 7: S-CURVE PROGRESS -->
     <div class="view" id="view-progress">
       <div class="page-header">
-        <div><div class="page-title">S-Curve Progress</div><div class="page-sub">Target vs Achievement — from S-Curve sheet · Cumulative billing (₹ Crores)</div></div>
+        <div><div class="page-title">S-Curve Progress</div><div class="page-sub">Target vs Achievement — cumulative billing (₹ Crores)</div></div>
         <div class="page-badges">
-          <span class="pill pill-green">₹70.36 Cr achieved</span>
-          <span class="pill pill-amber">₹3.51 Cr remaining</span>
+          <span class="pill pill-green" id="sc-badge-achieved">—</span>
+          <span class="pill pill-amber" id="sc-badge-remaining">—</span>
         </div>
       </div>
       <div class="kpi3">
-        <div class="kpi-card"><div><div class="kpi-label">Total Project Cost Target</div><div class="kpi-val blue">₹73.87 Cr</div><div class="kpi-note">Physical S-curve basis</div></div><div class="kpi-icon blue"><i class="ti ti-target"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-val green">₹70.36 Cr</div><div class="kpi-label">Cumulative Achievement</div><div class="kpi-note">95.25% of target achieved</div></div><div class="kpi-icon green"><i class="ti ti-check-circle"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Balance Remaining</div><div class="kpi-val amber">₹3.51 Cr</div><div class="kpi-note">4.75% remaining to complete</div></div><div class="kpi-icon amber"><i class="ti ti-hourglass"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Total Project Cost Target</div><div class="kpi-val blue" id="sc-target-val">—</div><div class="kpi-note">Physical S-curve basis</div></div><div class="kpi-icon blue"><i class="ti ti-target"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-val green" id="sc-achieved-val">—</div><div class="kpi-label">Cumulative Achievement</div><div class="kpi-note" id="sc-achieved-note">—</div></div><div class="kpi-icon green"><i class="ti ti-check-circle"></i></div></div>
+        <div class="kpi-card"><div><div class="kpi-label">Balance Remaining</div><div class="kpi-val amber" id="sc-remaining-val">—</div><div class="kpi-note" id="sc-remaining-note">—</div></div><div class="kpi-icon amber"><i class="ti ti-hourglass"></i></div></div>
+      </div>
+      <div class="card" id="sc-missing-note" style="display:none">
+        <div class="info-box warn" style="margin-bottom:0">
+          <strong>No s_curve data found.</strong> This view reads from an <code>s_curve</code> table (month_label, month_date, target, achieved) that isn't in the schema you ran yet — add it in Supabase to populate this page.
+        </div>
       </div>
       <div class="card">
         <div class="card-header">
@@ -432,6 +424,28 @@ Chart.defaults.color = '#6b7280';
 const G = 'rgba(0,0,0,0.05)';
 const fmtINR = v => '₹' + Number(v).toLocaleString('en-IN');
 const toCr = v => (v / 1e7).toFixed(2);
+const crFmt = v => '₹' + (v/1e7).toFixed(2) + ' Cr';
+
+// ─── SUPABASE CONFIG ────────────────────────────────────────────────────────
+// Fill these in with your own Supabase project values:
+// Project URL  → Supabase dashboard › Project Settings › API › Project URL
+// Anon key     → Supabase dashboard › Project Settings › API › anon public key
+const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';      // e.g. 'https://xxxxxxxx.supabase.co'
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const PROJECT_ID = '00000000-0000-0000-0000-000000000001';
+
+const sb = (SUPABASE_URL.startsWith('http') && window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+// ─── DATA CONTAINERS (populated from Supabase, nothing hardcoded) ──────────
+let PROJECT   = null;   // projects row
+let CASHFLOW  = null;   // cashflow_summary row
+let VENDORS   = [];     // vendor_ledger rows
+let SALARY    = [];     // salary_data rows
+let COSTMT    = [];     // cost_per_mt rows (mapped to {month,billed,wd,actual})
+let SCURVE    = [];     // s_curve rows (mapped to {month,target,achieved}) — optional table
+let dataReady = false;
 
 // ─── NAVIGATION ─────────────────────────────────────────────────────────────
 const viewTitles = {
@@ -441,6 +455,7 @@ const viewTitles = {
 };
 const inited = {};
 function nav(el, id) {
+  if (!dataReady) return;
   document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -457,85 +472,83 @@ function initView(id) {
   else if (id === 'progress') initProgress();
 }
 
-// ─── STATIC DATA ────────────────────────────────────────────────────────────
-const VENDORS = [
-  {name:'Aggregates Suppliers', color:'#2563eb', outstanding:143173976, paid:139537779, rate:518.54, share_pct:20.33},
-  {name:'Aggregates Royalty',   color:'#7c3aed', outstanding:22583936,  paid:11344028,  rate:81.79,  share_pct:3.21},
-  {name:'Supplier – FO/LDO',   color:'#0891b2', outstanding:102107639, paid:101059524, rate:369.81, share_pct:14.50},
-  {name:'Supplier – HSD',      color:'#059669', outstanding:95025012,  paid:95025012,  rate:344.16, share_pct:13.49},
-  {name:'Supplier – Firewood', color:'#d97706', outstanding:7051191,   paid:7051191,   rate:25.54,  share_pct:1.00},
-  {name:'Other Suppliers',     color:'#dc2626', outstanding:22791275,  paid:23054617,  rate:83.50,  share_pct:3.24},
-  {name:'Vision Infra Hire',   color:'#9333ea', outstanding:70351491,  paid:70351491,  rate:254.80, share_pct:9.99},
-  {name:'Dumpers Hire',        color:'#c2410c', outstanding:63698654,  paid:61602775,  rate:230.70, share_pct:9.04},
-  {name:'Other Hire Machinery',color:'#0f766e', outstanding:33624555,  paid:33397721,  rate:121.78, share_pct:4.77},
-  {name:'Labour Contractors',  color:'#1d4ed8', outstanding:33223752,  paid:33285044,  rate:120.55, share_pct:4.72},
-  {name:'Transport Creditors', color:'#6d28d9', outstanding:4684766,   paid:4684766,   rate:16.97,  share_pct:0.67},
-  {name:'Rent Creditors',      color:'#0369a1', outstanding:8505139,   paid:8505139,   rate:30.80,  share_pct:1.21},
-  {name:'Admin – Creditors',   color:'#15803d', outstanding:3167050,   paid:3167050,   rate:11.47,  share_pct:0.45},
-  {name:'Other Creditors',     color:'#b45309', outstanding:29048884,  paid:29017732,  rate:105.21, share_pct:4.12}
-];
-VENDORS.forEach(v => { v.balance = Math.max(0, v.outstanding - v.paid); });
+// ─── SUPABASE DATA LOAD ─────────────────────────────────────────────────────
+async function loadData() {
+  if (!sb) {
+    throw new Error('Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script.');
+  }
 
-const SALARY = [
-  {month:'Apr\'24',staff_sal:360483,  ra_bills:143350, nmr:70125,      total:573958,   hc:8},
-  {month:'May\'24',staff_sal:516493,  ra_bills:235575, nmr:552013,     total:1304081,  hc:10},
-  {month:'Jun\'24',staff_sal:544891,  ra_bills:529644, nmr:631400,     total:1705935,  hc:11},
-  {month:'Jul\'24',staff_sal:945909,  ra_bills:329625, nmr:1698057,    total:2973591,  hc:14},
-  {month:'Aug\'24',staff_sal:1061450, ra_bills:384185, nmr:857769,     total:2303404,  hc:16},
-  {month:'Sep\'24',staff_sal:1354285, ra_bills:613285, nmr:1088958,    total:3056528,  hc:19},
-  {month:'Oct\'24',staff_sal:1689112, ra_bills:751410, nmr:1600816,    total:4041338,  hc:23},
-  {month:'Nov\'24',staff_sal:1749424, ra_bills:634995, nmr:1868434,    total:4252853,  hc:24},
-  {month:'Dec\'24',staff_sal:1915359, ra_bills:701790, nmr:2065552,    total:4682701,  hc:26},
-  {month:'Jan\'25',staff_sal:1948232, ra_bills:655770, nmr:2221580,    total:4825582,  hc:27},
-  {month:'Feb\'25',staff_sal:1791205, ra_bills:679160, nmr:1832321,    total:4302686,  hc:25},
-  {month:'Mar\'25',staff_sal:1702396, ra_bills:553750, nmr:1584006,    total:3840152,  hc:24},
-  {month:'Apr\'25',staff_sal:1673468, ra_bills:349500, nmr:1838250,    total:3861218,  hc:23},
-  {month:'May\'25',staff_sal:1686339, ra_bills:347500, nmr:2097237,    total:4131076,  hc:23},
-  {month:'Jun\'25',staff_sal:1744958, ra_bills:347500, nmr:1981233,    total:4073691,  hc:24},
-  {month:'Jul\'25',staff_sal:1562982, ra_bills:558500, nmr:1438837,    total:3560319,  hc:21},
-  {month:'Aug\'25',staff_sal:1408889, ra_bills:337500, nmr:1532996,    total:3279385,  hc:19},
-  {month:'Sep\'25',staff_sal:1441431, ra_bills:392500, nmr:1510100,    total:3344031,  hc:20},
-  {month:'Oct\'25',staff_sal:1551106, ra_bills:397500, nmr:1770527,    total:3719133,  hc:21},
-  {month:'Nov\'25',staff_sal:1584741, ra_bills:397500, nmr:2130666,    total:4112907,  hc:21},
-  {month:'Dec\'25',staff_sal:1522923, ra_bills:322500, nmr:2055716,    total:3901139,  hc:20},
-  {month:'Jan\'26',staff_sal:1426868, ra_bills:397500, nmr:1409084,    total:3233452,  hc:19},
-  {month:'Feb\'26',staff_sal:1265969, ra_bills:225500, nmr:912618,     total:2404087,  hc:17},
-  {month:'Mar\'26',staff_sal:811097,  ra_bills:265000, nmr:44000,      total:1120097,  hc:11},
-  {month:'Apr\'26',staff_sal:693445,  ra_bills:138500, nmr:59000,      total:890945,   hc:9}
-];
+  const [projRes, cfRes, vendRes, salRes, costRes, scRes] = await Promise.all([
+    sb.from('projects').select('*').eq('id', PROJECT_ID).maybeSingle(),
+    sb.from('cashflow_summary').select('*').eq('project_id', PROJECT_ID).maybeSingle(),
+    sb.from('vendor_ledger').select('*').eq('project_id', PROJECT_ID).order('sort_order'),
+    sb.from('salary_data').select('*').eq('project_id', PROJECT_ID).order('month_date'),
+    sb.from('cost_per_mt').select('*').eq('project_id', PROJECT_ID).order('month_date'),
+    sb.from('s_curve').select('*').eq('project_id', PROJECT_ID).order('month_date')
+  ]);
 
-const COSTMT = [
-  {month:"Aug'24",billed:5678,  wd:5470,  actual:7780},
-  {month:"Sep'24",billed:8389,  wd:9798,  actual:1867},
-  {month:"Oct'24",billed:14411, wd:17631, actual:1790},
-  {month:"Nov'24",billed:30599, wd:26292, actual:1096},
-  {month:"Dec'24",billed:15726, wd:16022, actual:2033},
-  {month:"Jan'25",billed:32616, wd:32629, actual:1460},
-  {month:"Feb'25",billed:18399, wd:18384, actual:1861},
-  {month:"Mar'25",billed:22931, wd:22931, actual:1689},
-  {month:"Apr'25",billed:19948, wd:19992, actual:1650},
-  {month:"May'25",billed:21098, wd:21121, actual:1833},
-  {month:"Jun'25",billed:8173,  wd:10850, actual:3290},
-  {month:"Jul'25",billed:6561,  wd:5733,  actual:2705},
-  {month:"Aug'25",billed:5981,  wd:4260,  actual:2450},
-  {month:"Sep'25",billed:5368,  wd:4720,  actual:3626},
-  {month:"Oct'25",billed:13059, wd:12905, actual:2529},
-  {month:"Nov'25",billed:19277, wd:18929, actual:1764},
-  {month:"Dec'25",billed:21141, wd:21372, actual:1796},
-  {month:"Jan'26",billed:5031,  wd:4283,  actual:2592},
-  {month:"Feb'26",billed:1723,  wd:2326,  actual:7880},
-  {month:"Mar'26",billed:0,     wd:0,     actual:0}
-];
+  if (projRes.error) throw projRes.error;
+  if (cfRes.error)   throw cfRes.error;
+  if (vendRes.error) throw vendRes.error;
+  if (salRes.error)  throw salRes.error;
+  if (costRes.error) throw costRes.error;
+  // s_curve table is optional — don't hard-fail the whole dashboard if it's missing
+  const scError = scRes.error ? scRes.error : null;
 
-// S-Curve from actual S-Curve sheet (in ₹ Crores)
-const SC_MONTHS  = ["Aug'24","Sep'24","Oct'24","Nov'24","Dec'24","Jan'25","Feb'25","Mar'25","Apr'25","May'25","Jun'25","Jul'25","Aug'25","Sep'25","Oct'25","Nov'25","Dec'25","Jan'26","Feb'26"];
-const SC_TARGET  = [1.13, 3.76, 13.6246, 23.9973, 34.3259, 44.4958, 54.5364, 73.8677, null, null, null, null, null, null, null, null, null, null, null];
-const SC_ACHIEVE = [1.9862, 4.2152, 7.8866, 13.5923, 17.3808, 27.1999, 31.8875, 37.8194, 42.7199, 47.8609, 50.1907, 51.7664, 53.3084, 54.6188, 57.9374, 62.7692, 67.9486, 69.3192, 70.3638];
-const SC_MONTHLY = SC_ACHIEVE.map((v,i) => i===0 ? v : +(v - SC_ACHIEVE[i-1]).toFixed(4));
+  PROJECT  = projRes.data;
+  CASHFLOW = cfRes.data;
+  VENDORS  = (vendRes.data || []).map(v => ({...v, balance: Math.max(0, (v.outstanding||0) - (v.paid||0))}));
+  SALARY   = salRes.data || [];
+  COSTMT   = (costRes.data || []).map(d => ({
+    month: d.month_label, billed: d.billed_mt, wd: d.workdone_mt,
+    actual: d.cost_actual, planned: d.cost_planned, quoted: d.cost_quoted
+  }));
+  SCURVE   = scError ? [] : (scRes.data || []).map(d => ({ month: d.month_label, target: d.target, achieved: d.achieved }));
+
+  if (!PROJECT)  throw new Error('No row found in "projects" for project_id ' + PROJECT_ID);
+  if (!CASHFLOW) throw new Error('No row found in "cashflow_summary" for project_id ' + PROJECT_ID);
+}
+
+function renderShell() {
+  document.getElementById('tb-title').textContent = viewTitles.overview;
+  document.getElementById('topbar-meta').textContent =
+    `${PROJECT.name} – ${PROJECT.company} · ${Number(PROJECT.total_mt).toLocaleString('en-IN')} MT Infrastructure Project`;
+  document.getElementById('ov-page-sub').textContent = `${PROJECT.name} – ${PROJECT.company} · Infrastructure Project`;
+  document.getElementById('ov-badge-profit').innerHTML =
+    `<i class="ti ti-trending-up" style="font-size:11px"></i>+${Number(CASHFLOW.profit_pct).toFixed(2)}% Profit`;
+  document.getElementById('ov-badge-complete').textContent = `${Number(PROJECT.completion_pct).toFixed(2)}% Complete`;
+}
+
+// ─── RENDER: OVERVIEW KPIs ──────────────────────────────────────────────────
+function renderOverviewKpis() {
+  const c = CASHFLOW;
+  document.getElementById('kpi-inflow-val').textContent  = crFmt(c.net_inflow);
+  document.getElementById('kpi-outflow-val').textContent = crFmt(c.net_outflow);
+  document.getElementById('kpi-profit-val').textContent  = crFmt(c.net_profit);
+  document.getElementById('kpi-profit-note').textContent = `+${Number(c.profit_pct).toFixed(2)}% margin on inflow`;
+  document.getElementById('kpi-diverted-val').textContent = crFmt(c.cash_diverted);
+
+  document.getElementById('kpi-received-val').textContent = crFmt(c.amount_received);
+  const recvPct = c.gross_receivable > 0 ? (c.amount_received / c.gross_receivable * 100) : 0;
+  document.getElementById('kpi-received-note').textContent = `${recvPct.toFixed(2)}% of gross billed`;
+  document.getElementById('kpi-balance-val').textContent  = crFmt(c.balance_receivable);
+  document.getElementById('kpi-retention-val').textContent = crFmt(c.retention_pct5);
+  document.getElementById('kpi-pbg-val').textContent       = crFmt(c.pbg_pct25);
+
+  const dues = VENDORS.filter(v => v.balance > 0).sort((a,b) => b.balance - a.balance);
+  document.getElementById('ov-dues-count').textContent = `${dues.length} open balance${dues.length===1?'':'s'}`;
+  document.getElementById('ov-dues-list').innerHTML = dues.length
+    ? dues.map(v => `<div class="alert-row"><div><div class="alert-name">${v.name}</div><div class="alert-sub">${Number(v.share_pct).toFixed(2)}% of total spend · ₹${Number(v.rate).toFixed(2)}/MT</div></div><span class="pill pill-red">${crFmt(v.balance)}</span></div>`).join('')
+    : '<div class="empty-note">No pending vendor dues — everything is cleared.</div>';
+}
 
 // ─── INIT OVERVIEW ──────────────────────────────────────────────────────────
 function initOverview() {
-  const wValues = [75.73, -0.10, 75.63, 5.05, 80.79, -70.53, 10.25];
+  const c = CASHFLOW;
+  const wValues = [
+    c.gross_receivable/1e7, -(c.balance_receivable/1e7), c.amount_received/1e7,
+    (c.retention_pct5 + c.pbg_pct25)/1e7, c.net_inflow/1e7, -(c.net_outflow/1e7), c.net_profit/1e7
+  ];
   const wLabels = ['Gross recv.','− Balance','Net recv.','+Ret+PBG','Net inflow','− Outflow','Profit'];
   new Chart(document.getElementById('wf'), {
     type:'bar',
@@ -549,7 +562,7 @@ function initOverview() {
       responsive:true, maintainAspectRatio:false, layout:{padding:{top:24}},
       plugins:{
         legend:{display:false},
-        tooltip:{callbacks:{label:c=>'₹'+wValues[c.dataIndex].toFixed(2)+' Cr'}},
+        tooltip:{callbacks:{label:c2=>'₹'+wValues[c2.dataIndex].toFixed(2)+' Cr'}},
         datalabels:{anchor:'end',align:'end',offset:2,font:{size:9.5,weight:'600'},clamp:true,
           color:ctx=>wValues[ctx.dataIndex]>=0?'#15803d':'#dc2626',
           formatter:(v,ctx)=>'₹'+Math.abs(wValues[ctx.dataIndex]).toFixed(1)+'Cr'}
@@ -566,24 +579,68 @@ function initOverview() {
     options:{cutout:'55%',responsive:true,maintainAspectRatio:false,layout:{padding:16},
       plugins:{
         legend:{position:'right',labels:{boxWidth:8,padding:6,font:{size:9.5},usePointStyle:true,pointStyle:'circle'}},
-        tooltip:{callbacks:{label:c=>' '+c.label+': '+c.raw+'%'}},
+        tooltip:{callbacks:{label:c2=>' '+c2.label+': '+c2.raw+'%'}},
         datalabels:{anchor:'end',align:'end',offset:6,font:{size:9.5,weight:'700'},color:'#374151',formatter:v=>v>2?v+'%':''}
       }
     }
   });
+
+  renderOverviewKpis();
 }
 
-// ─── INIT CASHFLOW ──────────────────────────────────────────────────────────
+// ─── RENDER + INIT CASHFLOW ─────────────────────────────────────────────────
+function renderCashflowKpis() {
+  const c = CASHFLOW;
+  document.getElementById('cf-gross-val').textContent     = crFmt(c.gross_receivable);
+  document.getElementById('cf-retpbg-val').textContent    = crFmt(c.retention_pct5 + c.pbg_pct25);
+  document.getElementById('cf-netinflow-val').textContent = crFmt(c.net_inflow);
+
+  document.getElementById('cf-vendor-val').textContent = crFmt(c.vendor_payments);
+  document.getElementById('cf-vendor-note').textContent = `${(c.vendor_payments/c.net_inflow*100).toFixed(1)}% of net inflow`;
+  document.getElementById('cf-staffsite-val').textContent = crFmt(c.staff_salaries + c.site_purchases + c.hotmix_plant);
+  document.getElementById('cf-profit-val').textContent  = crFmt(c.net_profit);
+  document.getElementById('cf-profit-note').textContent = `+${Number(c.profit_pct).toFixed(2)}% · Diverted ${crFmt(c.cash_diverted)}`;
+
+  const rows = [
+    {label:'Gross Receivable from Client', amt:c.gross_receivable, pct:c.gross_receivable/c.net_inflow*100, strong:true, color:'var(--blue)'},
+    {label:'— Amount Received', amt:c.amount_received, pct:c.amount_received/c.net_inflow*100, indent:true},
+    {label:'— Balance Receivable', amt:c.balance_receivable, pct:c.balance_receivable/c.net_inflow*100, indent:true},
+    {label:'Retention &amp; PBG', amt:c.retention_pct5 + c.pbg_pct25, pct:(c.retention_pct5 + c.pbg_pct25)/c.net_inflow*100},
+    {label:'Net Cash Inflow', amt:c.net_inflow, pct:100, strong:true, color:'var(--blue)', bg:'#eff6ff'},
+    {label:'Vendor Payments', amt:-c.vendor_payments, pct:c.vendor_payments/c.net_inflow*100, color:'var(--red)'},
+    {label:'Staff Salaries', amt:-c.staff_salaries, pct:c.staff_salaries/c.net_inflow*100, color:'var(--red)'},
+    {label:'Site Local Purchases', amt:-c.site_purchases, pct:c.site_purchases/c.net_inflow*100, color:'var(--red)'},
+    {label:'Hot Mix Plant (30% cost)', amt:-c.hotmix_plant, pct:c.hotmix_plant/c.net_inflow*100, color:'var(--red)'},
+    {label:'Net Cash Outflow', amt:-c.net_outflow, pct:c.net_outflow/c.net_inflow*100, strong:true, color:'var(--red)', bg:'#f9fafb'},
+    {label:'Net Profit', amt:c.net_profit, pct:Number(c.profit_pct), strong:true, color:'var(--green)', bg:'#f0fdf4', pctSuffix:'%', pctSign:true},
+    {label:'Cash Diverted (Outside)', amt:c.cash_diverted, pct:c.cash_diverted/c.net_inflow*100, color:'var(--amber)'}
+  ];
+  document.getElementById('cf-summary-table').innerHTML = rows.map(r=>{
+    const amtCr = (r.amt/1e7).toFixed(2);
+    const sign = r.amt < 0 ? '−' : '';
+    const amtTxt = `${sign}₹${Math.abs(amtCr)} Cr`;
+    const pctTxt = r.pctSuffix ? `${r.pctSign && r.pct>=0?'+':''}${r.pct.toFixed(2)}%` : `${r.pct.toFixed(1)}%`;
+    const tdStyle = r.color ? `style="color:${r.color};font-weight:${r.strong?700:400}"` : (r.strong ? 'style="font-weight:700"' : '');
+    const labelHtml = r.strong ? `<strong>${r.label}</strong>` : (r.indent ? `<span style="padding-left:20px;color:var(--text-tertiary)">${r.label}</span>` : r.label);
+    return `<tr${r.bg?` style="background:${r.bg}"`:''}>
+      <td>${labelHtml}</td>
+      <td class="tr" ${tdStyle}>${amtTxt}</td>
+      <td class="tr tm">${pctTxt}</td>
+    </tr>`;
+  }).join('');
+}
+
 function initCashflow() {
+  const c = CASHFLOW;
   new Chart(document.getElementById('cf-bar'), {
     type:'bar',
     data:{labels:['Net Inflow','Net Outflow','Profit'],
-      datasets:[{data:[80.79,70.53,10.25],
+      datasets:[{data:[+(c.net_inflow/1e7).toFixed(2), +(c.net_outflow/1e7).toFixed(2), +(c.net_profit/1e7).toFixed(2)],
         backgroundColor:['rgba(37,99,235,0.45)','rgba(220,38,38,0.45)','rgba(34,197,94,0.45)'],
         borderColor:['#2563eb','#dc2626','#16a34a'],borderWidth:1.5,borderRadius:5}]},
     options:{
       responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'₹'+c.raw+' Cr'}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c2=>'₹'+c2.raw+' Cr'}},
         datalabels:{anchor:'end',align:'end',offset:2,font:{size:10,weight:'700'},clamp:true,
           color:ctx=>['#1d4ed8','#b91c1c','#15803d'][ctx.dataIndex],formatter:v=>'₹'+v+' Cr'}},
       scales:{x:{grid:{display:false}},y:{grid:{color:G},ticks:{callback:v=>'₹'+v+'Cr'},border:{display:false}}}
@@ -592,20 +649,39 @@ function initCashflow() {
   new Chart(document.getElementById('cf-pie'), {
     type:'doughnut',
     data:{labels:['Amount Received','Retention 5%','PBG 2.5%','Balance Due'],
-      datasets:[{data:[75.63,3.48,1.57,0.10],
+      datasets:[{data:[+(c.amount_received/1e7).toFixed(2), +(c.retention_pct5/1e7).toFixed(2), +(c.pbg_pct25/1e7).toFixed(2), +(c.balance_receivable/1e7).toFixed(2)],
         backgroundColor:['rgba(34,197,94,0.55)','rgba(37,99,235,0.55)','rgba(124,58,237,0.55)','rgba(220,38,38,0.55)'],
         borderColor:['#16a34a','#2563eb','#7c3aed','#dc2626'],borderWidth:1.5,hoverOffset:5}]},
     options:{cutout:'50%',responsive:true,maintainAspectRatio:false,layout:{padding:16},
       plugins:{
         legend:{position:'bottom',labels:{boxWidth:9,padding:10,font:{size:10},usePointStyle:true,pointStyle:'circle'}},
-        tooltip:{callbacks:{label:c=>' '+c.label+': ₹'+c.raw+' Cr'}},
+        tooltip:{callbacks:{label:c2=>' '+c2.label+': ₹'+c2.raw+' Cr'}},
         datalabels:{anchor:'end',align:'end',offset:6,font:{size:9.5,weight:'700'},color:'#374151',formatter:v=>v>0.3?'₹'+v+'Cr':''}
       }
     }
   });
+
+  renderCashflowKpis();
 }
 
-// ─── INIT VENDORS ────────────────────────────────────────────────────────────
+// ─── RENDER + INIT VENDORS ──────────────────────────────────────────────────
+function renderVendorsKpis() {
+  const totalOutstanding = VENDORS.reduce((s,v)=>s+(v.outstanding||0),0);
+  const totalPaid        = VENDORS.reduce((s,v)=>s+(v.paid||0),0);
+  const totalBalance     = VENDORS.reduce((s,v)=>s+(v.balance||0),0);
+  const billedCount      = VENDORS.filter(v=>v.outstanding>0).length;
+  const dueCount         = VENDORS.filter(v=>v.balance>0).length;
+  const eff = totalOutstanding>0 ? (totalPaid/totalOutstanding*100) : 0;
+
+  document.getElementById('vn-outstanding-val').textContent = crFmt(totalOutstanding);
+  document.getElementById('vn-outstanding-note').textContent = `Across ${billedCount} billed categories`;
+  document.getElementById('vn-paid-val').textContent = crFmt(totalPaid);
+  document.getElementById('vn-paid-note').textContent = `${eff.toFixed(1)}% payment efficiency`;
+  document.getElementById('vn-balance-val').textContent = crFmt(totalBalance);
+  document.getElementById('vn-balance-note').textContent = `${dueCount} vendor${dueCount===1?'':'s'} with open dues`;
+  document.getElementById('vn-count-badge').textContent = `${VENDORS.length} categories`;
+}
+
 function initVendors() {
   const top = VENDORS.filter(v=>v.outstanding>0).slice(0,7);
   new Chart(document.getElementById('vnd-bar'), {
@@ -649,17 +725,33 @@ function initVendors() {
       <td>${st}</td>
     </tr>`;
   }).join('');
+
+  renderVendorsKpis();
 }
 
-// ─── INIT STAFF ──────────────────────────────────────────────────────────────
+// ─── RENDER + INIT STAFF ────────────────────────────────────────────────────
+function renderStaffKpis() {
+  const staffTotal = SALARY.reduce((s,d)=>s+(d.staff_sal||0),0);
+  const raTotal     = SALARY.reduce((s,d)=>s+(d.ra_bills||0),0);
+  const nmrTotal    = SALARY.reduce((s,d)=>s+(d.nmr_manpower||0),0);
+  const grandTotal  = SALARY.reduce((s,d)=>s+(d.total||0),0);
+
+  document.getElementById('st-total-val').textContent = crFmt(grandTotal);
+  document.getElementById('st-total-note').textContent = SALARY.length
+    ? `${SALARY[0].month_label} – ${SALARY[SALARY.length-1].month_label}` : '—';
+  document.getElementById('st-staff-val').textContent = crFmt(staffTotal);
+  document.getElementById('st-nmr-val').textContent    = crFmt(nmrTotal);
+  document.getElementById('st-ra-val').textContent     = crFmt(raTotal);
+}
+
 function initStaff() {
-  const labs = SALARY.map(d=>d.month);
+  const labs = SALARY.map(d=>d.month_label);
   new Chart(document.getElementById('sal-bar'), {
     type:'bar',
     data:{labels:labs, datasets:[
       {label:'Staff Salary',data:SALARY.map(d=>+(d.staff_sal/1e5).toFixed(2)),backgroundColor:'rgba(37,99,235,0.5)',borderWidth:0,stack:'s'},
       {label:'RA Bills',    data:SALARY.map(d=>+(d.ra_bills/1e5).toFixed(2)), backgroundColor:'rgba(34,197,94,0.5)', borderWidth:0,stack:'s'},
-      {label:'NMR Manpower',data:SALARY.map(d=>+(d.nmr/1e5).toFixed(2)),      backgroundColor:'rgba(217,119,6,0.6)', borderWidth:0,stack:'s'}
+      {label:'NMR Manpower',data:SALARY.map(d=>+(d.nmr_manpower/1e5).toFixed(2)),backgroundColor:'rgba(217,119,6,0.6)', borderWidth:0,stack:'s'}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},
@@ -677,7 +769,7 @@ function initStaff() {
   new Chart(document.getElementById('hc-line'), {
     type:'line',
     data:{labels:labs, datasets:[{
-      label:'Headcount',data:SALARY.map(d=>d.hc),
+      label:'Headcount',data:SALARY.map(d=>d.headcount),
       borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,0.07)',
       fill:true,tension:0.35,pointRadius:3,borderWidth:2
     }]},
@@ -690,18 +782,44 @@ function initStaff() {
   });
 
   document.getElementById('sal-table').innerHTML = SALARY.map(d=>`<tr>
-    <td>${d.month}</td>
+    <td>${d.month_label}</td>
     <td class="tr tm">${d.staff_sal>0?fmtINR(d.staff_sal):'—'}</td>
     <td class="tr tm">${d.ra_bills>0?fmtINR(d.ra_bills):'—'}</td>
-    <td class="tr tm">${d.nmr>0?fmtINR(d.nmr):'—'}</td>
+    <td class="tr tm">${d.nmr_manpower>0?fmtINR(d.nmr_manpower):'—'}</td>
     <td class="tr" style="font-weight:600">${fmtINR(d.total)}</td>
-    <td class="tr tm">${d.hc}</td>
+    <td class="tr tm">${d.headcount}</td>
   </tr>`).join('');
+
+  renderStaffKpis();
 }
 
-// ─── INIT COST/MT ────────────────────────────────────────────────────────────
+// ─── RENDER + INIT COST/MT ──────────────────────────────────────────────────
+function renderCostMtKpis() {
+  const planned = PROJECT.cost_planned_per_mt;
+  const quoted  = PROJECT.cost_quoted_per_mt;
+  const actual  = PROJECT.cost_actual_per_mt;
+  const planVar = actual - planned;
+  const quoteVar = actual - quoted;
+  const planVarPct = (planVar/planned*100);
+  const quoteVarPct = (quoteVar/quoted*100);
+
+  document.getElementById('cm-planned-val').textContent = '₹' + Number(planned).toLocaleString('en-IN');
+  document.getElementById('cm-quoted-val').textContent  = '₹' + Number(quoted).toLocaleString('en-IN');
+  document.getElementById('cm-actual-val').textContent  = '₹' + Number(actual).toLocaleString('en-IN');
+
+  const planVarTxt  = `${planVar>=0?'+':'−'}₹${Math.abs(planVar)}/MT ${planVar>=0?'over':'under'} plan`;
+  const quoteVarTxt = `${quoteVar>=0?'+':'−'}₹${Math.abs(quoteVar)}/MT ${quoteVar>=0?'over':'under'} quote`;
+  document.getElementById('cm-badge-planvar').textContent = planVarTxt;
+  document.getElementById('cm-badge-quotevar').textContent = quoteVarTxt;
+  document.getElementById('cm-planvar-val').textContent = planVarTxt;
+  document.getElementById('cm-planvar-note').textContent = `${Math.abs(planVarPct).toFixed(1)}% ${planVar>=0?'above':'below'} planned cost`;
+  document.getElementById('cm-quotevar-val').textContent = quoteVarTxt;
+  document.getElementById('cm-quotevar-note').textContent = `${Math.abs(quoteVarPct).toFixed(1)}% ${quoteVar>=0?'above':'below'} quoted rate` + (quoteVar<0 ? ' — profitable margin' : '');
+}
+
 function initCostMT() {
-  const planned=2009, quoted=2390;
+  const planned = PROJECT.cost_planned_per_mt;
+  const quoted  = PROJECT.cost_quoted_per_mt;
   const labs = COSTMT.map(d=>d.month);
   const actWithNull = COSTMT.map(d=>d.actual>0?d.actual:null);
 
@@ -764,39 +882,54 @@ function initCostMT() {
       <td>${st}</td>
     </tr>`;
   }).join('');
+
+  renderCostMtKpis();
 }
 
-// ─── INIT S-CURVE ────────────────────────────────────────────────────────────
+// ─── RENDER + INIT S-CURVE ──────────────────────────────────────────────────
 function initProgress() {
-  const totalTarget = 73.8677;
-  const totalAchieved = 70.3638;
+  document.getElementById('sc-missing-note').style.display = SCURVE.length ? 'none' : 'block';
+  if (!SCURVE.length) {
+    document.getElementById('sc-target-val').textContent = '—';
+    document.getElementById('sc-achieved-val').textContent = '—';
+    document.getElementById('sc-remaining-val').textContent = '—';
+    document.getElementById('sc-badge-achieved').textContent = 'No data';
+    document.getElementById('sc-badge-remaining').textContent = 'No data';
+    return;
+  }
 
-  // S-Curve chart
+  const SC_MONTHS  = SCURVE.map(d=>d.month);
+  const SC_TARGET  = SCURVE.map(d=>d.target!=null?+d.target:null);
+  const SC_ACHIEVE = SCURVE.map(d=>+d.achieved);
+  const SC_MONTHLY = SC_ACHIEVE.map((v,i) => i===0 ? v : +(v - SC_ACHIEVE[i-1]).toFixed(4));
+
+  const totalTarget   = SC_TARGET.filter(v=>v!=null).reduce((m,v)=>Math.max(m,v), 0);
+  const totalAchieved = SC_ACHIEVE[SC_ACHIEVE.length - 1];
+  const remaining     = Math.max(0, totalTarget - totalAchieved);
+  const achievedPct   = totalTarget>0 ? (totalAchieved/totalTarget*100) : 0;
+  const remainingPct  = totalTarget>0 ? (remaining/totalTarget*100) : 0;
+
+  document.getElementById('sc-target-val').textContent    = crFmt(totalTarget*1e7);
+  document.getElementById('sc-achieved-val').textContent  = crFmt(totalAchieved*1e7);
+  document.getElementById('sc-achieved-note').textContent = `${achievedPct.toFixed(2)}% of target achieved`;
+  document.getElementById('sc-remaining-val').textContent = crFmt(remaining*1e7);
+  document.getElementById('sc-remaining-note').textContent = `${remainingPct.toFixed(2)}% remaining to complete`;
+  document.getElementById('sc-badge-achieved').textContent = `${crFmt(totalAchieved*1e7)} achieved`;
+  document.getElementById('sc-badge-remaining').textContent = `${crFmt(remaining*1e7)} remaining`;
+
   new Chart(document.getElementById('scurve'), {
     type:'line',
     data:{labels:SC_MONTHS, datasets:[
       {
-        label:'Target (Planned)',
-        data:SC_TARGET,
-        borderColor:'rgba(37,99,235,0.8)',
-        backgroundColor:'rgba(37,99,235,0.05)',
-        borderDash:[5,4],
-        fill:true,
-        tension:0.3,
-        pointRadius:SC_TARGET.map(v=>v!=null?4:0),
-        borderWidth:2.5,
-        spanGaps:false
+        label:'Target (Planned)', data:SC_TARGET,
+        borderColor:'rgba(37,99,235,0.8)', backgroundColor:'rgba(37,99,235,0.05)',
+        borderDash:[5,4], fill:true, tension:0.3,
+        pointRadius:SC_TARGET.map(v=>v!=null?4:0), borderWidth:2.5, spanGaps:false
       },
       {
-        label:'Achievement (Actual)',
-        data:SC_ACHIEVE,
-        borderColor:'#16a34a',
-        backgroundColor:'rgba(34,197,94,0.06)',
-        fill:true,
-        tension:0.3,
-        pointRadius:4,
-        borderWidth:2.5,
-        pointBackgroundColor:'#16a34a'
+        label:'Achievement (Actual)', data:SC_ACHIEVE,
+        borderColor:'#16a34a', backgroundColor:'rgba(34,197,94,0.06)',
+        fill:true, tension:0.3, pointRadius:4, borderWidth:2.5, pointBackgroundColor:'#16a34a'
       }
     ]},
     options:{
@@ -812,17 +945,15 @@ function initProgress() {
       },
       scales:{
         x:{grid:{display:false},ticks:{font:{size:9.5},maxRotation:35}},
-        y:{grid:{color:G},ticks:{callback:v=>'₹'+v+'Cr'},border:{display:false},min:0,max:80}
+        y:{grid:{color:G},ticks:{callback:v=>'₹'+v+'Cr'},border:{display:false},min:0}
       }
     }
   });
 
-  // Monthly achievement bar
   new Chart(document.getElementById('achieve-bar'), {
     type:'bar',
     data:{labels:SC_MONTHS, datasets:[{
-      label:'Monthly Billing',
-      data:SC_MONTHLY,
+      label:'Monthly Billing', data:SC_MONTHLY,
       backgroundColor:SC_MONTHLY.map(v=>v>0?'rgba(34,197,94,0.5)':'rgba(156,163,175,0.3)'),
       borderColor:SC_MONTHLY.map(v=>v>0?'#22c55e':'#9ca3af'),
       borderWidth:1.5, borderRadius:4
@@ -838,7 +969,6 @@ function initProgress() {
     }
   });
 
-  // Table
   document.getElementById('prog-table').innerHTML = SC_MONTHS.map((m,i)=>{
     const target = SC_TARGET[i];
     const achieved = SC_ACHIEVE[i];
@@ -858,9 +988,23 @@ function initProgress() {
   }).join('');
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-inited['overview'] = true;
-initOverview();
+// ─── BOOTSTRAP ───────────────────────────────────────────────────────────────
+(async function bootstrap() {
+  try {
+    await loadData();
+    renderShell();
+    inited.overview = true;
+    initOverview();
+    dataReady = true;
+  } catch (err) {
+    console.error('Dashboard data load failed:', err);
+    document.getElementById('tb-title').textContent = 'Connection error';
+    document.getElementById('topbar-meta').textContent = 'Could not load data from Supabase';
+    const box = document.getElementById('db-error');
+    box.style.display = 'block';
+    document.getElementById('db-error-msg').textContent = err.message || String(err);
+  }
+})();
 </script>
 </body>
 </html>
