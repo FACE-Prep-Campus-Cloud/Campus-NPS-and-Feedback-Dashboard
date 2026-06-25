@@ -117,18 +117,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
     <div class="sb-label">Menu</div>
     <div class="sb-item active" onclick="nav(this,'overview')"><i class="ti ti-layout-dashboard"></i> Overview</div>
     <div class="sb-item" onclick="nav(this,'cashflow')"><i class="ti ti-cash"></i> Cash Flow</div>
-    <div class="sb-item" onclick="nav(this,'pl')"><i class="ti ti-chart-bar"></i> Monthly P&amp;L</div>
     <div class="sb-item" onclick="nav(this,'vendors')"><i class="ti ti-truck"></i> Vendors</div>
     <div class="sb-item" onclick="nav(this,'staff')"><i class="ti ti-users"></i> Staff Salaries</div>
     <div class="sb-item" onclick="nav(this,'costmt')"><i class="ti ti-ruler-measure"></i> Cost per MT</div>
     <div class="sb-item" onclick="nav(this,'progress')"><i class="ti ti-chart-line"></i> S-Curve Progress</div>
-  </div>
-  <div class="sb-foot">
-    <div class="sb-upgrade">
-      <div class="sb-upgrade-label">Work done rate</div>
-      <div class="sb-upgrade-note">₹2,301/MT actual · 2,76,110 MT total</div>
-      <div class="sb-upgrade-val">95.25% Complete</div>
-    </div>
   </div>
 </aside>
 
@@ -139,10 +131,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
         <div class="topbar-title" id="tb-title">Executive Overview</div>
         <div class="topbar-meta">WMPTL – Sarus Infrastructures Pvt Ltd · 2,76,110 MT Infrastructure Project · FY 2024–26</div>
       </div>
-    </div>
-    <div class="topbar-right">
-      <span class="pill pill-blue"><i class="ti ti-clock" style="font-size:10px"></i> Last updated: April 2026</span>
-      <span class="pill pill-green">95.25% Complete</span>
     </div>
   </div>
 
@@ -250,57 +238,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
             <tr><td>Cash Diverted (Outside)</td><td class="tr" style="color:var(--amber)">₹7.00 Cr</td><td class="tr tm">8.7%</td></tr>
           </tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- VIEW 3: MONTHLY P&L -->
-    <div class="view" id="view-pl">
-      <div class="page-header">
-        <div><div class="page-title">Monthly P&amp;L Trend</div><div class="page-sub">25 months · Apr'24 – Apr'26 · Sourced from Abstract sheet</div></div>
-        <div class="page-badges">
-          <span class="pill pill-red" id="pl-deficit-pill">—</span>
-          <span class="pill pill-green" id="pl-best-pill">—</span>
-        </div>
-      </div>
-
-      <div class="info-box">
-        <strong>How Monthly P&amp;L is calculated:</strong> Each month's <strong>Inflow</strong> = sum of all bill receipts (Patch Work + MMR Work + Toll Expenses) from the Abstract sheet. Each month's <strong>Outflow</strong> = sum of all expense categories (Staff Salaries + RA Bills + Manpower + Machinery + Aggregates Supply/Transport/Royalty + HSD + FO + Others + Miscellaneous). <strong>Profit/Loss = Inflow − Outflow.</strong> Months with zero billing (Apr'24, Jul'24, Aug'24, Apr'26) show only outflow as mobilisation cost.
-      </div>
-
-      <div class="kpi4">
-        <div class="kpi-card"><div><div class="kpi-label">Peak Deficit Month</div><div class="kpi-val red" id="pl-peak-deficit">—</div><div class="kpi-note" id="pl-peak-deficit-note">—</div></div><div class="kpi-icon red"><i class="ti ti-trending-down"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Best Profit Month</div><div class="kpi-val green" id="pl-best-month">—</div><div class="kpi-note" id="pl-best-month-note">—</div></div><div class="kpi-icon green"><i class="ti ti-trending-up"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Months Profitable</div><div class="kpi-val blue" id="pl-profitable">—</div><div class="kpi-note">Out of 25 months</div></div><div class="kpi-icon blue"><i class="ti ti-circle-check"></i></div></div>
-        <div class="kpi-card"><div><div class="kpi-label">Months in Deficit</div><div class="kpi-val amber" id="pl-deficit">—</div><div class="kpi-note">Including zero-billing months</div></div><div class="kpi-icon amber"><i class="ti ti-clock"></i></div></div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Monthly Inflow vs Outflow (₹ Crores)</div>
-          <div class="legend" style="margin:0">
-            <span class="leg"><span class="leg-sq" style="background:rgba(37,99,235,0.5)"></span>Inflow</span>
-            <span class="leg"><span class="leg-sq" style="background:rgba(220,38,38,0.5)"></span>Outflow</span>
-          </div>
-        </div>
-        <div style="position:relative;height:260px"><canvas id="pl-bar"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Cumulative Profit / Loss (₹ Crores)</div>
-          <div class="legend" style="margin:0">
-            <span class="leg"><span class="leg-dot" style="background:#dc2626"></span>Deficit period</span>
-            <span class="leg"><span class="leg-dot" style="background:#16a34a"></span>Profit period</span>
-          </div>
-        </div>
-        <div style="position:relative;height:240px"><canvas id="pl-cum"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Month-by-Month P&amp;L Detail (from Abstract Sheet)</div></div>
-        <div style="overflow-x:auto">
-          <table class="vtable">
-            <thead><tr><th>Month</th><th class="tr">Inflow (₹Cr)</th><th class="tr">Outflow (₹Cr)</th><th class="tr">P/L (₹Cr)</th><th class="tr">P/L %</th><th>Status</th></tr></thead>
-            <tbody id="pl-table"></tbody>
-          </table>
-        </div>
       </div>
     </div>
 
@@ -498,7 +435,7 @@ const toCr = v => (v / 1e7).toFixed(2);
 
 // ─── NAVIGATION ─────────────────────────────────────────────────────────────
 const viewTitles = {
-  overview:'Executive Overview', cashflow:'Cash Flow', pl:'Monthly P&L',
+  overview:'Executive Overview', cashflow:'Cash Flow',
   vendors:'Vendor Ledger', staff:'Staff Salaries', costmt:'Cost per MT',
   progress:'S-Curve Progress'
 };
@@ -514,7 +451,6 @@ function nav(el, id) {
 function initView(id) {
   if      (id === 'overview') initOverview();
   else if (id === 'cashflow') initCashflow();
-  else if (id === 'pl')       initPL();
   else if (id === 'vendors')  initVendors();
   else if (id === 'staff')    initStaff();
   else if (id === 'costmt')   initCostMT();
@@ -567,11 +503,6 @@ const SALARY = [
   {month:'Mar\'26',staff_sal:811097,  ra_bills:265000, nmr:44000,      total:1120097,  hc:11},
   {month:'Apr\'26',staff_sal:693445,  ra_bills:138500, nmr:59000,      total:890945,   hc:9}
 ];
-
-// Monthly P&L from Abstract sheet — Inflow = bill receipts, Outflow = all expenses
-const PL_MONTHS = ["Apr'24","May'24","Jun'24","Jul'24","Aug'24","Sep'24","Oct'24","Nov'24","Dec'24","Jan'25","Feb'25","Mar'25","Apr'25","May'25","Jun'25","Jul'25","Aug'25","Sep'25","Oct'25","Nov'25","Dec'25","Jan'26","Feb'26","Mar'26","Apr'26"];
-const PL_INFLOW = [0,11054545,8807067,0,0,22289981,36714021,57057300,37884891,98190707,46876369,59319491,49004757,51409888,23297809,15757163,15419859,13103877,33186739,48318026,51793427,13706376,0,10445219,0];
-const PL_OUTFLOW= [2072283,12667269,9987823,16699293,9346450,24670091,38038952,41619331,41768987,48783162,38087530,45834089,39322916,40929492,28883881,19750067,16652110,21464586,35021241,36002640,39460682,14039570,14574907,90147,2064766];
 
 const COSTMT = [
   {month:"Aug'24",billed:5678,  wd:5470,  actual:7780},
@@ -632,11 +563,11 @@ function initOverview() {
     type:'doughnut',
     data:{labels:sd.map(v=>v.name.split(' ').slice(0,2).join(' ')),
       datasets:[{data:sd.map(v=>v.share_pct),backgroundColor:sd.map(v=>v.color),borderColor:'#ffffff',borderWidth:2,hoverOffset:6}]},
-    options:{cutout:'55%',responsive:true,maintainAspectRatio:false,
+    options:{cutout:'55%',responsive:true,maintainAspectRatio:false,layout:{padding:16},
       plugins:{
         legend:{position:'right',labels:{boxWidth:8,padding:6,font:{size:9.5},usePointStyle:true,pointStyle:'circle'}},
         tooltip:{callbacks:{label:c=>' '+c.label+': '+c.raw+'%'}},
-        datalabels:{anchor:'center',align:'center',font:{size:9.5,weight:'700'},color:'#fff',formatter:v=>v>2?v+'%':''}
+        datalabels:{anchor:'end',align:'end',offset:6,font:{size:9.5,weight:'700'},color:'#374151',formatter:v=>v>2?v+'%':''}
       }
     }
   });
@@ -664,101 +595,14 @@ function initCashflow() {
       datasets:[{data:[75.63,3.48,1.57,0.10],
         backgroundColor:['rgba(34,197,94,0.55)','rgba(37,99,235,0.55)','rgba(124,58,237,0.55)','rgba(220,38,38,0.55)'],
         borderColor:['#16a34a','#2563eb','#7c3aed','#dc2626'],borderWidth:1.5,hoverOffset:5}]},
-    options:{cutout:'50%',responsive:true,maintainAspectRatio:false,
+    options:{cutout:'50%',responsive:true,maintainAspectRatio:false,layout:{padding:16},
       plugins:{
         legend:{position:'bottom',labels:{boxWidth:9,padding:10,font:{size:10},usePointStyle:true,pointStyle:'circle'}},
         tooltip:{callbacks:{label:c=>' '+c.label+': ₹'+c.raw+' Cr'}},
-        datalabels:{anchor:'center',align:'center',font:{size:9.5,weight:'700'},color:'#fff',formatter:v=>v>0.3?'₹'+v+'Cr':''}
+        datalabels:{anchor:'end',align:'end',offset:6,font:{size:9.5,weight:'700'},color:'#374151',formatter:v=>v>0.3?'₹'+v+'Cr':''}
       }
     }
   });
-}
-
-// ─── INIT MONTHLY P&L ───────────────────────────────────────────────────────
-function initPL() {
-  const pl = PL_MONTHS.map((m,i)=>({
-    month:m, inflow:PL_INFLOW[i], outflow:PL_OUTFLOW[i],
-    pl: PL_INFLOW[i] - PL_OUTFLOW[i]
-  }));
-
-  const profitable = pl.filter(d=>d.pl>0).length;
-  const deficit    = pl.filter(d=>d.pl<0).length;
-  const peakDef    = pl.reduce((a,b)=>b.pl<a.pl?b:a);
-  const bestProfit = pl.reduce((a,b)=>b.pl>a.pl?b:a);
-
-  document.getElementById('pl-profitable').textContent = profitable;
-  document.getElementById('pl-deficit').textContent    = deficit;
-  document.getElementById('pl-peak-deficit').textContent = `−₹${Math.abs(peakDef.pl/1e7).toFixed(2)} Cr`;
-  document.getElementById('pl-peak-deficit-note').textContent = `${peakDef.month} — zero billing, full outflow`;
-  document.getElementById('pl-best-month').textContent = `+₹${(bestProfit.pl/1e7).toFixed(2)} Cr`;
-  document.getElementById('pl-best-month-note').textContent = `${bestProfit.month} — peak billing month`;
-  document.getElementById('pl-deficit-pill').textContent = `Peak deficit: ${peakDef.month} −₹${Math.abs(peakDef.pl/1e7).toFixed(2)} Cr`;
-  document.getElementById('pl-best-pill').textContent   = `Best month: ${bestProfit.month} +₹${(bestProfit.pl/1e7).toFixed(2)} Cr`;
-
-  const inArr  = pl.map(d=>+(d.inflow/1e7).toFixed(2));
-  const outArr = pl.map(d=>+(d.outflow/1e7).toFixed(2));
-
-  new Chart(document.getElementById('pl-bar'), {
-    type:'bar',
-    data:{labels:PL_MONTHS, datasets:[
-      {label:'Inflow',  data:inArr,  backgroundColor:'rgba(37,99,235,0.5)', borderWidth:0, borderRadius:3},
-      {label:'Outflow', data:outArr, backgroundColor:'rgba(220,38,38,0.5)', borderWidth:0, borderRadius:3}
-    ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,layout:{padding:{top:4}},
-      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>' '+c.dataset.label+': ₹'+c.raw+'Cr'}},datalabels:{display:false}},
-      scales:{x:{grid:{display:false},ticks:{maxRotation:45,font:{size:8.5},autoSkip:true,maxTicksLimit:13}},y:{grid:{color:G},ticks:{callback:v=>'₹'+v+'Cr'},border:{display:false}}}
-    }
-  });
-
-  let cum=0;
-  const cumArr = pl.map(d=>{cum+=d.pl/1e7; return +cum.toFixed(2);});
-  new Chart(document.getElementById('pl-cum'), {
-    type:'line',
-    data:{labels:PL_MONTHS, datasets:[{
-      label:'Cumulative P/L', data:cumArr,
-      borderColor:'#16a34a', backgroundColor:'rgba(34,197,94,0.1)',
-      fill:true, tension:0.3, pointRadius:3, borderWidth:2.5,
-      segment:{
-        borderColor:ctx=>cumArr[ctx.p1DataIndex]>=0?'#16a34a':'#dc2626',
-        backgroundColor:ctx=>cumArr[ctx.p1DataIndex]>=0?'rgba(34,197,94,0.08)':'rgba(220,38,38,0.08)'
-      }
-    }]},
-    options:{
-      responsive:true,maintainAspectRatio:false,layout:{padding:{top:18}},
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{label:c=>' Cum P/L: ₹'+c.raw+' Cr'}},
-        datalabels:{display:ctx=>ctx.dataIndex%3===0,anchor:'top',align:'top',offset:3,font:{size:8,weight:'600'},clamp:true,
-          color:ctx=>cumArr[ctx.dataIndex]>=0?'#15803d':'#dc2626',formatter:v=>'₹'+v+'Cr'}
-      },
-      scales:{x:{grid:{display:false},ticks:{maxRotation:45,font:{size:8.5},autoSkip:true,maxTicksLimit:13}},y:{grid:{color:G},ticks:{callback:v=>'₹'+v+'Cr'},border:{display:false}}}
-    }
-  });
-
-  const tb = document.getElementById('pl-table');
-  tb.innerHTML = pl.map(d=>{
-    const plCr = (d.pl/1e7).toFixed(2);
-    const inCr = (d.inflow/1e7).toFixed(2);
-    const outCr= (d.outflow/1e7).toFixed(2);
-    const isP  = d.pl>0;
-    const isL  = d.pl<0;
-    const col  = isP?'var(--green)':isL?'var(--red)':'var(--text-secondary)';
-    const pct  = d.inflow>0 ? (d.pl/d.inflow*100).toFixed(1)+'%' : '—';
-    const sign = isP?'+':'';
-    const status = isP
-      ? '<span class="pill pill-green">Profit</span>'
-      : isL ? '<span class="pill pill-red">Loss</span>'
-             : '<span class="pill pill-amber">Nil billing</span>';
-    return `<tr>
-      <td>${d.month}</td>
-      <td class="tr tm">${d.inflow>0?'₹'+inCr+' Cr':'—'}</td>
-      <td class="tr tm">₹${outCr} Cr</td>
-      <td class="tr" style="color:${col};font-weight:600">${sign}₹${plCr} Cr</td>
-      <td class="tr tm">${pct}</td>
-      <td>${status}</td>
-    </tr>`;
-  }).join('');
 }
 
 // ─── INIT VENDORS ────────────────────────────────────────────────────────────
