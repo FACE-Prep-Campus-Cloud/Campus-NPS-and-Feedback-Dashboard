@@ -300,7 +300,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
         <div class="card-header"><div class="card-title">Month-by-Month Salary Detail</div></div>
         <div style="overflow-x:auto">
           <table class="vtable" style="min-width:700px">
-            <thead><tr><th>Month</th><th class="tr">Staff Salary (₹)</th><th class="tr">RA Bills (₹)</th><th class="tr">NMR Manpower (₹)</th><th class="tr">Total (₹)</th><th class="tr">Headcount</th></tr></thead>
+            <thead><tr>
+              <th style="min-width:75px">Month</th>
+              <th class="tr" style="min-width:130px">Staff Salary (₹)</th>
+              <th class="tr" style="min-width:115px">RA Bills (₹)</th>
+              <th class="tr" style="min-width:145px">NMR Manpower (₹)</th>
+              <th class="tr" style="min-width:115px">Total (₹)</th>
+              <th class="tr" style="min-width:90px">Headcount</th>
+            </tr></thead>
             <tbody id="sal-table"></tbody>
           </table>
         </div>
@@ -355,8 +362,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
       <div class="card">
         <div class="card-header"><div class="card-title">Month-by-Month Cost per MT Detail</div></div>
         <div style="overflow-x:auto">
-          <table class="vtable" style="min-width:680px">
-            <thead><tr><th>Month</th><th class="tr">Billed MT</th><th class="tr">Workdone MT</th><th class="tr">Planned ₹/MT</th><th class="tr">Quoted ₹/MT</th><th class="tr">Actual ₹/MT</th><th>Status</th></tr></thead>
+          <table class="vtable" style="min-width:680px;table-layout:fixed">
+            <thead><tr>
+              <th style="min-width:75px">Month</th>
+              <th class="tr" style="min-width:90px">Billed MT</th>
+              <th class="tr" style="min-width:100px">Workdone MT</th>
+              <th class="tr" style="min-width:115px">Planned ₹/MT</th>
+              <th class="tr" style="min-width:115px">Quoted ₹/MT</th>
+              <th class="tr" style="min-width:115px">Actual ₹/MT</th>
+              <th style="min-width:110px">Status</th>
+            </tr></thead>
             <tbody id="cost-table"></tbody>
           </table>
         </div>
@@ -427,10 +442,7 @@ const toCr = v => (v / 1e7).toFixed(2);
 const crFmt = v => '₹' + (v/1e7).toFixed(2) + ' Cr';
 
 // ─── SUPABASE CONFIG ────────────────────────────────────────────────────────
-// Fill these in with your own Supabase project values:
-// Project URL  → Supabase dashboard › Project Settings › API › Project URL
-// Anon key     → Supabase dashboard › Project Settings › API › anon public key
-const SUPABASE_URL = 'https://pqjkngkgxjxqnfkvnmut.supabase.co';      // e.g. 'https://xxxxxxxx.supabase.co'
+const SUPABASE_URL = 'https://pqjkngkgxjxqnfkvnmut.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxamtuZ2tneGp4cW5ma3ZubXV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDkxNjYsImV4cCI6MjA5NzUyNTE2Nn0.nwdeLOT2lMYPjfLzu3-dOzP_zTI1ALMgRFOKRQrtTcU';
 const PROJECT_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -438,13 +450,12 @@ const sb = (SUPABASE_URL.startsWith('http') && window.supabase)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
-// ─── DATA CONTAINERS (populated from Supabase, nothing hardcoded) ──────────
-let PROJECT   = null;   // projects row
-let CASHFLOW  = null;   // cashflow_summary row
-let VENDORS   = [];     // vendor_ledger rows
-let SALARY    = [];     // salary_data rows
-let COSTMT    = [];     // cost_per_mt rows (mapped to {month,billed,wd,actual})
-let SCURVE    = [];     // s_curve rows (mapped to {month,target,achieved}) — optional table
+let PROJECT   = null;
+let CASHFLOW  = null;
+let VENDORS   = [];
+let SALARY    = [];
+let COSTMT    = [];
+let SCURVE    = [];
 let dataReady = false;
 
 // ─── NAVIGATION ─────────────────────────────────────────────────────────────
@@ -492,8 +503,6 @@ async function loadData() {
   if (vendRes.error) throw vendRes.error;
   if (salRes.error)  throw salRes.error;
   if (costRes.error) throw costRes.error;
-  // s_curve table is optional — don't hard-fail the whole dashboard if it's missing
-  const scError = scRes.error ? scRes.error : null;
 
   PROJECT  = projRes.data;
   CASHFLOW = cfRes.data;
@@ -503,7 +512,7 @@ async function loadData() {
     month: d.month_label, billed: d.billed_mt, wd: d.workdone_mt,
     actual: d.cost_actual, planned: d.cost_planned, quoted: d.cost_quoted
   }));
-  SCURVE   = scError ? [] : (scRes.data || []).map(d => ({ month: d.month_label, target: d.target, achieved: d.achieved }));
+  SCURVE   = scRes.error ? [] : (scRes.data || []).map(d => ({ month: d.month_label, target: d.target, achieved: d.achieved }));
 
   if (!PROJECT)  throw new Error('No row found in "projects" for project_id ' + PROJECT_ID);
   if (!CASHFLOW) throw new Error('No row found in "cashflow_summary" for project_id ' + PROJECT_ID);
@@ -694,8 +703,15 @@ function initVendors() {
     options:{
       responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ₹'+c.raw+' Cr'}},
-        datalabels:{anchor:'end',align:'end',offset:2,font:{size:8.5,weight:'600'},clamp:true,
-          color:ctx=>ctx.datasetIndex===0?'#1d4ed8':'#15803d',formatter:v=>v>0?'₹'+v+'Cr':''}},
+        /* FIX A: Stagger blue labels above bar, green labels rotated alongside bar to prevent collision */
+        datalabels:{
+          anchor: 'end',
+          align:  ctx => ctx.datasetIndex === 0 ? 'end' : 'start',
+          offset: ctx => ctx.datasetIndex === 0 ? 2 : 14,
+          rotation: ctx => ctx.datasetIndex === 1 ? -90 : 0,
+          font:{size:8,weight:'600'},clamp:true,
+          color:ctx=>ctx.datasetIndex===0?'#1d4ed8':'#15803d',
+          formatter:v=>v>0?'₹'+v+'Cr':''}},
       scales:{x:{grid:{display:false},ticks:{maxRotation:35,font:{size:9.5}}},y:{grid:{color:G},ticks:{callback:v=>'₹'+v+'Cr'},border:{display:false}}}
     }
   });
@@ -756,7 +772,8 @@ function initStaff() {
     options:{
       responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},
       plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false},
-        datalabels:{display:ctx=>ctx.datasetIndex===2,anchor:'end',align:'end',offset:2,font:{size:8.5,weight:'600'},color:'#374151',clamp:true,
+        /* FIX B: Show label every 2nd bar only, smaller font to prevent overlap */
+        datalabels:{display:ctx=>ctx.datasetIndex===2&&ctx.dataIndex%2===0,anchor:'end',align:'end',offset:2,font:{size:7.5,weight:'600'},color:'#374151',clamp:true,
           formatter:(v,ctx)=>{const t=ctx.chart.data.datasets.reduce((s,ds)=>s+(ds.data[ctx.dataIndex]||0),0);return t>0?'₹'+t.toFixed(1)+'L':'';}
         }},
       scales:{
@@ -837,7 +854,8 @@ function initCostMT() {
     options:{
       responsive:true,maintainAspectRatio:false,layout:{padding:{top:24,right:10}},
       plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.raw!=null?' '+c.dataset.label+': ₹'+c.raw+'/MT':''}},datalabels:{}},
-      scales:{x:{grid:{display:false},ticks:{maxRotation:40,font:{size:9}}},y:{grid:{color:G},ticks:{callback:v=>'₹'+v},border:{display:false},min:0,max:9000}}
+      /* FIX D: Use suggestedMax instead of hard max so tall outliers (e.g. ₹7780) still render with label room */
+      scales:{x:{grid:{display:false},ticks:{maxRotation:40,font:{size:9}}},y:{grid:{color:G},ticks:{callback:v=>'₹'+v},border:{display:false},min:0,suggestedMax:9000}}
     }
   });
 
